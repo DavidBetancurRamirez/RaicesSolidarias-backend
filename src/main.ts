@@ -30,7 +30,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Raices Solidarias API')
-    .setDescription('API para la gestion de Raices Solidarias')
+    .setDescription('API para la APP de Raices Solidarias')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
