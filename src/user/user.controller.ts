@@ -1,19 +1,17 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
-import { Auth } from '@/auth/decorators/auth.decorator';
-
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { ResponsesSecurity } from '@/common/decorators/responses-security.decorator';
 import { UserRoles } from '@/common/enums/user-roles.enum';
+
+import { Auth } from '@/auth/decorators/auth.decorator';
 
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { UserService } from './user.service';
 
 import { User } from './user.schema';
-import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
-import { ActiveUser } from '@/common/decorators/active-user.decorator';
-import { UserActiveInterface } from '@/common/interfaces/user.interface';
 
 @ApiTags('user')
 @Controller('user')
@@ -26,12 +24,11 @@ export class UserController {
     return this.userService.createOrUpdate(createUserDto);
   }
 
-  @Auth([UserRoles.USER])
+  @Auth([UserRoles.ADMIN])
   @ResponsesSecurity()
   @ApiOperation({ summary: 'Find all users' })
   @Get()
-  findAll(@ActiveUser() userActive: UserActiveInterface): Promise<User[]> {
-    console.log('userActive', userActive);
+  findAll(): Promise<User[]> {
     return this.userService.findAll();
   }
 
