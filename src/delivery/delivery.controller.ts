@@ -29,7 +29,6 @@ export class DeliveryController {
     @ActiveUser() userActive: UserActiveInterface,
     @Body() createDeliveryDto: CreateDeliveryDto,
   ): Promise<Delivery> {
-    console.log('userActive', userActive);
     return this.deliveryService.createOrUpdate(createDeliveryDto, userActive.sub);
   }
 
@@ -39,15 +38,22 @@ export class DeliveryController {
     return this.deliveryService.findAll();
   }
 
+  @ApiOperation({ summary: 'Find delivery by Year' })
+  @ApiParam({ name: 'year', description: 'Year of the delivery' })
+  @Get('/year/:year')
+  findByYear(@Param('id') id: string): Promise<Delivery | null> {
+    return this.deliveryService.findByYear(+id);
+  }
+
   @ApiOperation({ summary: 'Find delivery by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the user' })
+  @ApiParam({ name: 'id', description: 'ID of the delivery' })
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Delivery | null> {
     return this.deliveryService.findById(id);
   }
 
   @ApiOperation({ summary: 'Delete a delivery by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the user' })
+  @ApiParam({ name: 'id', description: 'ID of the delivery' })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<DeleteResponseDto> {
     return this.deliveryService.softDelete(id);

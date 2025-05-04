@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { StatisticDto } from './statistic.dto';
+import { StatisticDto } from '../../common/dto/statistic.dto';
 import { ThankYouDto } from './tank-you.dto';
 
 export class CreateDeliveryDto {
@@ -25,7 +25,7 @@ export class CreateDeliveryDto {
   description: string;
 
   @ApiProperty({
-    description: 'ID of the user to update. If not provided, a new user will be created.',
+    description: 'ID of the delivery to update. If not provided, a new delivery will be created.',
   })
   @IsOptional()
   @IsMongoId()

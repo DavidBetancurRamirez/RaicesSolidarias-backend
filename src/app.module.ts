@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database.module';
 import { DeliveryModule } from './delivery/delivery.module';
+import { PlaceModule } from './place/place.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { DeliveryModule } from './delivery/delivery.module';
     UserModule,
     DatabaseModule,
     DeliveryModule,
+    PlaceModule,
   ],
   controllers: [],
   providers: [],
