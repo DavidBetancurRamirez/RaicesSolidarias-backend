@@ -108,7 +108,7 @@ export class DeliveryService {
         originalname: `deliveries/${deliveryFound.year}/tankYouImage`,
       });
 
-      deliveryFound.mainImageUrl = imageUrl.url;
+      deliveryFound.thankYou.imageUrl = imageUrl.url;
     }
 
     return await this.deliveryModel
