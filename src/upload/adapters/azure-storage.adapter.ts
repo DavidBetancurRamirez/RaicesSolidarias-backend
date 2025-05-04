@@ -20,10 +20,25 @@ export class AzureStorageAdapter implements StorageAdapter {
     this.containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
-    const filename = file.originalname;
+  async deleteFile(filename: string): Promise<void> {
     const blockBlobClient = this.containerClient.getBlockBlobClient(filename);
+    await blockBlobClient.deleteIfExists();
+  }
 
+  async fileExists(filename: string): Promise<boolean> {
+    const blobClient = this.containerClient.getBlockBlobClient(filename);
+    return await blobClient.exists();
+  }
+
+  getFileUrl(filename: string): string {
+    const blobClient = this.containerClient.getBlockBlobClient(filename);
+    return blobClient.url;
+  }
+
+  async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
+    const filename = file.filename || file.originalname;
+
+    const blockBlobClient = this.containerClient.getBlockBlobClient(filename);
     await blockBlobClient.uploadData(file.buffer, {
       blobHTTPHeaders: { blobContentType: file.mimetype },
     });
@@ -36,13 +51,5 @@ export class AzureStorageAdapter implements StorageAdapter {
 
   async uploadFiles(files: Express.Multer.File[]): Promise<UploadedFileResponse[]> {
     return Promise.all(files.map((file) => this.uploadFile(file)));
-  }
-
-  async deleteFile(filename: string): Promise<void> {
-    const blobClient = this.containerClient.getBlockBlobClient(filename);
-    const exists = await blobClient.exists();
-    if (exists) {
-      await blobClient.delete();
-    }
   }
 }
