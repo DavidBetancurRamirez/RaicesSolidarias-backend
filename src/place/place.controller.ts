@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -17,6 +18,7 @@ import { ResponsesSecurity } from '@/common/decorators/responses-security.decora
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { TestimonialDto } from './dto/testimonial.dto';
 import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 
 import { UserRoles } from '@/common/enums/user-roles.enum';
@@ -27,13 +29,13 @@ import { Place } from './place.schema';
 
 import { PlaceService } from './place.service';
 
+@ResponsesSecurity()
 @ApiTags('place')
 @Controller('place')
 export class PlaceController {
   constructor(private readonly placeService: PlaceService) {}
 
   @Auth([UserRoles.ADMIN])
-  @ResponsesSecurity()
   @ApiOperation({ summary: 'Create or update a place' })
   @Post()
   create(
@@ -44,7 +46,6 @@ export class PlaceController {
   }
 
   @Auth([UserRoles.ADMIN])
-  @ResponsesSecurity()
   @ApiOperation({ summary: 'Upload images of a place' })
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -65,6 +66,26 @@ export class PlaceController {
     return this.placeService.uploadImages(userActive.sub, placeId, files);
   }
 
+  @Auth([UserRoles.ADMIN])
+  @ApiOperation({ summary: 'Delete a place by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the place' })
+  @Delete(':id')
+  remove(@Param('id') id: string): Promise<DeleteResponseDto> {
+    return this.placeService.softDelete(id);
+  }
+
+  @Auth([UserRoles.USER])
+  @ApiOperation({ summary: 'Create or update testimonials' })
+  @ApiParam({ name: 'id', description: 'ID of the place' })
+  @Patch(':id/testimonials')
+  testimonials(
+    @ActiveUser() userActive: UserActiveInterface,
+    @Param('id') id: string,
+    @Body() testimonialDto: TestimonialDto,
+  ): Promise<Place | null> {
+    return this.placeService.testimonials(userActive.sub, id, testimonialDto);
+  }
+
   @ApiOperation({ summary: 'Find all places' })
   @Get()
   findAll(): Promise<Place[]> {
@@ -83,12 +104,5 @@ export class PlaceController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Place | null> {
     return this.placeService.findById(id);
-  }
-
-  @ApiOperation({ summary: 'Delete a place by ID' })
-  @ApiParam({ name: 'id', description: 'ID of the place' })
-  @Delete(':id')
-  remove(@Param('id') id: string): Promise<DeleteResponseDto> {
-    return this.placeService.softDelete(id);
   }
 }

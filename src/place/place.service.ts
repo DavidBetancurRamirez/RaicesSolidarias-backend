@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
+import { isValidObjectId, Model, Types } from 'mongoose';
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
@@ -13,6 +13,7 @@ import { Place } from './place.schema';
 
 import { DeliveryService } from '@/delivery/delivery.service';
 import { UploadService } from '@/upload/upload.service';
+import { TestimonialDto } from './dto/testimonial.dto';
 
 @Injectable()
 export class PlaceService {
@@ -78,6 +79,45 @@ export class PlaceService {
     return { deleted: !!deletedPlace };
   }
 
+  async testimonials(
+    userId: string,
+    placeId: string,
+    testimonialDto: TestimonialDto,
+  ): Promise<Place | null> {
+    const { id } = testimonialDto;
+
+    if (!isValidObjectId(placeId) || !isValidObjectId(id)) {
+      throw new BadRequestException('El id no es válido');
+    }
+
+    const placeFound = await this.findById(placeId);
+    if (!placeFound) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    if (id) {
+      const testimonialFound = placeFound.testimonials.find((t) => t?._id?.toString() === id);
+      if (!testimonialFound) {
+        throw new BadRequestException('Testimonio no encontrado');
+      }
+
+      if (testimonialDto.delete) {
+        testimonialFound.deletedAt = new Date();
+      } else {
+        testimonialFound.testimonial = testimonialDto.testimonial;
+      }
+    }
+
+    placeFound.testimonials.push({
+      testimonial: testimonialDto.testimonial,
+      updatedBy: new Types.ObjectId(userId),
+    });
+
+    return await this.placeModel
+      .findByIdAndUpdate(placeId, { $set: placeFound }, { new: true })
+      .exec();
+  }
+
   async uploadImages(
     userId: string,
     placeId: string,
@@ -92,7 +132,7 @@ export class PlaceService {
       throw new BadRequestException('Entrega no encontrada');
     }
 
-    const deliveryFound = await this.deliveryService.findById(String(placeFound.deliveryId));
+    const deliveryFound = await this.deliveryService.findById(placeFound.deliveryId._id as string);
     if (!deliveryFound) {
       throw new BadRequestException('Entrega no encontrada');
     }

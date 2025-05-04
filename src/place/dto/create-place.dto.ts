@@ -28,10 +28,6 @@ export class CreatePlaceDto {
 
   @ApiProperty({
     description: 'URLs de la galería de imágenes',
-    example: [
-      'https://s3.amazonaws.com/xxx/medellin-1.jpg',
-      'https://s3.amazonaws.com/xxx/medellin-2.jpg',
-    ],
     required: false,
   })
   @IsOptional()
@@ -41,7 +37,6 @@ export class CreatePlaceDto {
 
   @ApiProperty({
     description: 'URL de la imagen principal',
-    example: 'https://s3.amazonaws.com/xxx/main-image.jpg',
     required: false,
   })
   @IsOptional()
@@ -54,7 +49,6 @@ export class CreatePlaceDto {
 
   @ApiProperty({
     description: 'URL de la imagen principal',
-    example: 'https://s3.amazonaws.com/xxx/main-image.jpg',
     required: false,
   })
   @IsOptional()
