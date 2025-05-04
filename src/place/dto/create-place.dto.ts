@@ -20,10 +20,11 @@ export class CreatePlaceDto {
 
   @ApiProperty({
     description: 'ID of the place to update. If not provided, a new place will be created.',
+    required: false,
   })
   @IsOptional()
   @IsMongoId()
-  id: string;
+  id?: string;
 
   @ApiProperty({
     description: 'URLs de la galería de imágenes',
@@ -31,26 +32,39 @@ export class CreatePlaceDto {
       'https://s3.amazonaws.com/xxx/medellin-1.jpg',
       'https://s3.amazonaws.com/xxx/medellin-2.jpg',
     ],
+    required: false,
   })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  galleryImageUrls: string[];
+  galleryImageUrls?: string[];
 
   @ApiProperty({
     description: 'URL de la imagen principal',
     example: 'https://s3.amazonaws.com/xxx/main-image.jpg',
+    required: false,
   })
+  @IsOptional()
   @IsString()
-  mainImageUrl: string;
+  mainImageUrl?: string;
 
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
   placeName: string;
 
   @ApiProperty({
+    description: 'URL de la imagen principal',
+    example: 'https://s3.amazonaws.com/xxx/main-image.jpg',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  secondaryImageUrl: string;
+
+  @ApiProperty({
     description: 'Estadísticas del lugar',
     type: [StatisticDto],
+    required: false,
   })
   @IsOptional()
   @IsArray()

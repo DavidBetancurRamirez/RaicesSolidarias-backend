@@ -1,16 +1,25 @@
+import { v4 as uuidv4 } from 'uuid';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreatePlaceDto } from './dto/create-place.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Place } from './place.schema';
 import { isValidObjectId, Model } from 'mongoose';
+
+import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { UploadPlaceImagesDto } from './dto/place-upload.dto';
+
+import { UploadedFileResponse } from '@/upload/interfaces/storage.interface';
+
+import { Place } from './place.schema';
+
 import { DeliveryService } from '@/delivery/delivery.service';
+import { UploadService } from '@/upload/upload.service';
 
 @Injectable()
 export class PlaceService {
   constructor(
     @InjectModel(Place.name) private placeModel: Model<Place>,
     private readonly deliveryService: DeliveryService,
+    private readonly uploadService: UploadService,
   ) {}
 
   async createOrUpdate(createPlaceDto: CreatePlaceDto, userId: string): Promise<Place> {
@@ -67,5 +76,67 @@ export class PlaceService {
       .exec();
 
     return { deleted: !!deletedPlace };
+  }
+
+  async uploadImages(
+    userId: string,
+    placeId: string,
+    files: UploadPlaceImagesDto,
+  ): Promise<Place | null> {
+    if (!isValidObjectId(placeId)) {
+      throw new BadRequestException('El id no es válido');
+    }
+
+    const placeFound = await this.findById(placeId);
+    if (!placeFound) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    const deliveryFound = await this.deliveryService.findById(String(placeFound.deliveryId));
+    if (!deliveryFound) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    if (files?.mainImage?.[0]) {
+      const file = files.mainImage[0];
+
+      const mainImageUrl = await this.uploadService.uploadFile({
+        ...file,
+        originalname: `deliveries/${deliveryFound.year}/places/${placeId}/mainImage`,
+      });
+
+      placeFound.mainImageUrl = mainImageUrl.url;
+    }
+
+    if (files?.secondaryImage?.[0]) {
+      const file = files.secondaryImage[0];
+
+      const secondaryImageUrl = await this.uploadService.uploadFile({
+        ...file,
+        originalname: `deliveries/${deliveryFound.year}/places/${placeId}/secondaryImage`,
+      });
+
+      placeFound.secondaryImageUrl = secondaryImageUrl.url;
+    }
+
+    if (files?.gallery?.length) {
+      const galleryImages: UploadedFileResponse[] = await this.uploadService.uploadFiles(
+        files.gallery.map((file) => ({
+          ...file,
+          originalname: `deliveries/${deliveryFound.year}/places/${placeId}/gallery/${uuidv4()}`,
+        })),
+      );
+
+      const galleryImageUrls = galleryImages.map((image) => image.url);
+
+      placeFound.galleryImageUrls = [
+        ...(placeFound.galleryImageUrls || []),
+        ...(galleryImageUrls || []),
+      ];
+    }
+
+    return await this.placeModel
+      .findByIdAndUpdate(placeId, { $set: { ...placeFound, updatedBy: userId } }, { new: true })
+      .exec();
   }
 }

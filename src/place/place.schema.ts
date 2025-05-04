@@ -2,6 +2,7 @@ import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { StatisticDto } from '@/common/dto/statistic.dto';
+
 import { User } from '@/user/user.schema';
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })
@@ -18,14 +19,17 @@ export class Place extends Document {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ type: [String], required: true })
+  @Prop({ type: [String], required: false })
   galleryImageUrls: string[];
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   mainImageUrl: string;
 
   @Prop({ required: true })
   placeName: string;
+
+  @Prop({ required: false })
+  secondaryImageUrl: string;
 
   @Prop({
     required: false,

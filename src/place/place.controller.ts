@@ -1,5 +1,15 @@
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 import { ActiveUser } from '@/common/decorators/active-user.decorator';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -7,6 +17,7 @@ import { ResponsesSecurity } from '@/common/decorators/responses-security.decora
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 
 import { UserRoles } from '@/common/enums/user-roles.enum';
 
@@ -30,6 +41,28 @@ export class PlaceController {
     @Body() createPlaceDto: CreatePlaceDto,
   ): Promise<Place> {
     return this.placeService.createOrUpdate(createPlaceDto, userActive.sub);
+  }
+
+  @Auth([UserRoles.ADMIN])
+  @ResponsesSecurity()
+  @ApiOperation({ summary: 'Upload images of a place' })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'mainImage', maxCount: 1 },
+      { name: 'secondaryImage', maxCount: 1 },
+      { name: 'gallery', maxCount: 50 },
+    ]),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadPlaceImagesDto })
+  @ApiParam({ name: 'id', description: 'ID of the place' })
+  @Post(':id/images')
+  async uploadPlaceImages(
+    @ActiveUser() userActive: UserActiveInterface,
+    @Param('id') placeId: string,
+    @UploadedFiles() files: UploadPlaceImagesDto,
+  ): Promise<Place | null> {
+    return this.placeService.uploadImages(userActive.sub, placeId, files);
   }
 
   @ApiOperation({ summary: 'Find all places' })

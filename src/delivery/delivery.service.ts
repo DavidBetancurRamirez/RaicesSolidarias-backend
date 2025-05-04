@@ -26,6 +26,15 @@ export class DeliveryService {
         throw new BadRequestException('Entrega no encontrada');
       }
 
+      if (deliveryFound.year !== createDeliveryDto.year) {
+        const existedDelivery = await this.findByYear(createDeliveryDto.year);
+        if (existedDelivery) {
+          throw new BadRequestException(
+            `Ya existe una entrega con el año ${createDeliveryDto.year}`,
+          );
+        }
+      }
+
       return (
         await this.deliveryModel
           .findByIdAndUpdate(

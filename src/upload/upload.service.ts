@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { STORAGE_ADAPTER } from './adapters/constants.adapters';
 
-import { StorageAdapter } from './interfaces/storage.interface';
+import { StorageAdapter, UploadedFileResponse } from './interfaces/storage.interface';
 
 @Injectable()
 export class UploadService {
@@ -27,11 +27,11 @@ export class UploadService {
     return results;
   }
 
-  async uploadFile(file: Express.Multer.File) {
+  async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
     return this.storageAdapter.uploadFile(file);
   }
 
-  async uploadFiles(files: Express.Multer.File[]) {
+  async uploadFiles(files: Express.Multer.File[]): Promise<UploadedFileResponse[]> {
     return this.storageAdapter.uploadFiles(files);
   }
 }
