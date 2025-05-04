@@ -1,16 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Delivery } from './delivery.schema';
-import { isValidObjectId, Model } from 'mongoose';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { UploadDeliveryImagesDto } from './dto/delivery-upload.dto';
+
+import { Delivery } from './delivery.schema';
+
+import { UploadService } from '@/upload/upload.service';
 
 @Injectable()
 export class DeliveryService {
-  constructor(@InjectModel(Delivery.name) private deliveryModel: Model<Delivery>) {}
+  constructor(
+    @InjectModel(Delivery.name) private deliveryModel: Model<Delivery>,
+    private readonly uploadService: UploadService,
+  ) {}
 
-  async createOrUpdate(createDeliveryDto: CreateDeliveryDto, userId: string): Promise<Delivery> {
+  async createOrUpdate(userId: string, createDeliveryDto: CreateDeliveryDto): Promise<Delivery> {
     const { id } = createDeliveryDto;
 
     if (id) {
@@ -66,5 +73,50 @@ export class DeliveryService {
       .exec();
 
     return { deleted: !!deletedDelivery };
+  }
+
+  async uploadImages(
+    userId: string,
+    deliveryId: string,
+    files: UploadDeliveryImagesDto,
+  ): Promise<Delivery | null> {
+    if (!isValidObjectId(deliveryId)) {
+      throw new BadRequestException('El id no es válido');
+    }
+
+    const deliveryFound = await this.findById(deliveryId);
+    if (!deliveryFound) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    if (files?.mainImage?.[0]) {
+      const file = files.mainImage[0];
+
+      const mainImageUrl = await this.uploadService.uploadFile({
+        ...file,
+        originalname: `deliveries/${deliveryFound.year}/mainImage`,
+      });
+
+      deliveryFound.mainImageUrl = mainImageUrl.url;
+    }
+
+    if (files?.tankYouImage?.[0]) {
+      const file = files.tankYouImage[0];
+
+      const imageUrl = await this.uploadService.uploadFile({
+        ...file,
+        originalname: `deliveries/${deliveryFound.year}/tankYouImage`,
+      });
+
+      deliveryFound.mainImageUrl = imageUrl.url;
+    }
+
+    return await this.deliveryModel
+      .findByIdAndUpdate(
+        deliveryId,
+        { $set: { ...deliveryFound, updatedBy: userId } },
+        { new: true },
+      )
+      .exec();
   }
 }

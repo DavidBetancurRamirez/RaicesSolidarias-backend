@@ -36,7 +36,7 @@ export class AzureStorageAdapter implements StorageAdapter {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
-    const filename = file.filename || file.originalname;
+    const filename = file.originalname;
 
     const blockBlobClient = this.containerClient.getBlockBlobClient(filename);
     await blockBlobClient.uploadData(file.buffer, {

@@ -1,5 +1,15 @@
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 import { ActiveUser } from '@/common/decorators/active-user.decorator';
 import { Auth } from '@/auth/decorators/auth.decorator';
@@ -7,6 +17,7 @@ import { ResponsesSecurity } from '@/common/decorators/responses-security.decora
 
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { UploadDeliveryImagesDto } from './dto/delivery-upload.dto';
 
 import { UserRoles } from '@/common/enums/user-roles.enum';
 
@@ -29,7 +40,28 @@ export class DeliveryController {
     @ActiveUser() userActive: UserActiveInterface,
     @Body() createDeliveryDto: CreateDeliveryDto,
   ): Promise<Delivery> {
-    return this.deliveryService.createOrUpdate(createDeliveryDto, userActive.sub);
+    return this.deliveryService.createOrUpdate(userActive.sub, createDeliveryDto);
+  }
+
+  @Auth([UserRoles.ADMIN])
+  @ResponsesSecurity()
+  @ApiOperation({ summary: 'Upload delivery images' })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'mainImage', maxCount: 1 },
+      { name: 'tankYouImage', maxCount: 1 },
+    ]),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadDeliveryImagesDto })
+  @ApiParam({ name: 'id', description: 'ID of the delivery' })
+  @Post(':id/images')
+  uploadImages(
+    @ActiveUser() userActive: UserActiveInterface,
+    @Param('id') deliveryId: string,
+    @UploadedFiles() files: UploadDeliveryImagesDto,
+  ): Promise<Delivery | null> {
+    return this.deliveryService.uploadImages(userActive.sub, deliveryId, files);
   }
 
   @ApiOperation({ summary: 'Find all deliveries' })

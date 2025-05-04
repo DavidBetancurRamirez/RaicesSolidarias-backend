@@ -17,7 +17,7 @@ export class Delivery extends Document {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   mainImageUrl: string;
 
   @Prop({

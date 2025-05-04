@@ -26,26 +26,35 @@ export class CreateDeliveryDto {
 
   @ApiProperty({
     description: 'ID of the delivery to update. If not provided, a new delivery will be created.',
+    required: false,
   })
   @IsOptional()
   @IsMongoId()
-  id: string;
+  id?: string;
 
   @ApiProperty({
     description: 'URL de la imagen principal',
-    example: 'https://s3.amazonaws.com/xxx/main-2025.jpg',
+    required: false,
   })
+  @IsOptional()
   @IsString()
-  mainImageUrl: string;
+  mainImageUrl?: string;
 
-  @ApiProperty({ description: 'Estadísticas de la entrega', type: [StatisticDto] })
+  @ApiProperty({
+    description: 'Estadísticas de la entrega',
+    required: false,
+    type: [StatisticDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => StatisticDto)
   statistics: StatisticDto[];
 
-  @ApiProperty({ description: 'Información de agradecimiento' })
+  @ApiProperty({
+    description: 'Información de agradecimiento',
+    required: false,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => ThankYouDto)
