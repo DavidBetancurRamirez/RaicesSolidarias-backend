@@ -6,6 +6,7 @@ import { DatabaseModule } from './database.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { PlaceModule } from './place/place.module';
 import { UserModule } from './user/user.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from './user/user.module';
     DatabaseModule,
     DeliveryModule,
     PlaceModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],
