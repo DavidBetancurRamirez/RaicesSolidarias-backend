@@ -39,7 +39,7 @@ export class UserController {
     return this.userService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Create or update an user' })
+  @ApiOperation({ summary: 'Delete an user by ID' })
   @ApiParam({ name: 'id', description: 'ID of the user' })
   @Delete(':id')
   remove(@Param('id') id: string): Promise<DeleteResponseDto> {

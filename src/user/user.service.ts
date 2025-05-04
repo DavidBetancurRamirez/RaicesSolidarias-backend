@@ -56,8 +56,7 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await this.userModel.findOne({ email });
-    return user;
+    return await this.userModel.findOne({ email });
   }
 
   async hashPassword(password: string): Promise<string> {
