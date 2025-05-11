@@ -45,7 +45,7 @@ export class CreatePlaceDto {
 
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
-  placeName: string;
+  name: string;
 
   @ApiProperty({
     description: 'URL de la imagen principal',

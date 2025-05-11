@@ -41,7 +41,7 @@ export class Place extends Document {
   mainImageUrl: string;
 
   @Prop({ required: true })
-  placeName: string;
+  name: string;
 
   @Prop({ required: false })
   secondaryImageUrl: string;

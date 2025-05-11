@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, Types } from 'mongoose';
 
@@ -19,6 +19,7 @@ import { TestimonialDto } from './dto/testimonial.dto';
 export class PlaceService {
   constructor(
     @InjectModel(Place.name) private placeModel: Model<Place>,
+    @Inject(forwardRef(() => DeliveryService))
     private readonly deliveryService: DeliveryService,
     private readonly uploadService: UploadService,
   ) {}
@@ -64,8 +65,17 @@ export class PlaceService {
     return placeFound ? placeFound.toObject() : null;
   }
 
-  async findByYear(year: number): Promise<Place | null> {
-    return await this.placeModel.findOne({ year });
+  async findByDeliveryId(deliveryId: string): Promise<Place[] | null> {
+    if (!isValidObjectId(deliveryId)) {
+      throw new BadRequestException('El id no es válido');
+    }
+
+    const places = await this.placeModel
+      .find({ deliveryId })
+      .select(['name', 'mainImageUrl', 'deliveryDate', 'description'])
+      .exec();
+
+    return places ? places.map((place) => place.toObject()) : null;
   }
 
   async softDelete(id: string): Promise<DeleteResponseDto> {

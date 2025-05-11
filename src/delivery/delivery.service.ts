@@ -3,17 +3,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
+import { DeliveryPlacesDto } from './dto/delivery-places.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { UploadDeliveryImagesDto } from './dto/delivery-upload.dto';
 
 import { Delivery } from './delivery.schema';
 
+import { PlaceService } from '@/place/place.service';
 import { UploadService } from '@/upload/upload.service';
 
 @Injectable()
 export class DeliveryService {
   constructor(
     @InjectModel(Delivery.name) private deliveryModel: Model<Delivery>,
+    private readonly placeService: PlaceService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -57,7 +60,11 @@ export class DeliveryService {
   }
 
   async findAll(): Promise<Delivery[]> {
-    const deliveries = await this.deliveryModel.find().exec();
+    const deliveries = await this.deliveryModel
+      .find()
+      .select(['year', 'mainImageUrl', 'description'])
+      .sort({ year: -1 })
+      .exec();
     return deliveries.map((delivery) => delivery.toObject());
   }
 
@@ -69,8 +76,19 @@ export class DeliveryService {
     return deliveryFound ? deliveryFound.toObject() : null;
   }
 
-  async findByYear(year: number): Promise<Delivery | null> {
-    return await this.deliveryModel.findOne({ year });
+  async findByYear(year: number): Promise<DeliveryPlacesDto | null> {
+    const deliveryFound = await this.deliveryModel.findOne({ year }).exec();
+    if (!deliveryFound || !deliveryFound._id) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    const places = await this.placeService.findByDeliveryId(deliveryFound._id.toString());
+
+    return {
+      ...deliveryFound.toObject(),
+      places,
+    };
   }
 
   async softDelete(id: string): Promise<DeleteResponseDto> {

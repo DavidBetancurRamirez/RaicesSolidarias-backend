@@ -16,6 +16,7 @@ import { Auth } from '@/auth/decorators/auth.decorator';
 import { ResponsesSecurity } from '@/common/decorators/responses-security.decorator';
 
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
+import { DeliveryPlacesDto } from './dto/delivery-places.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { UploadDeliveryImagesDto } from './dto/delivery-upload.dto';
 
@@ -73,8 +74,8 @@ export class DeliveryController {
   @ApiOperation({ summary: 'Find delivery by Year' })
   @ApiParam({ name: 'year', description: 'Year of the delivery' })
   @Get('/year/:year')
-  findByYear(@Param('id') id: string): Promise<Delivery | null> {
-    return this.deliveryService.findByYear(+id);
+  findByYear(@Param('year') year: string): Promise<DeliveryPlacesDto | null> {
+    return this.deliveryService.findByYear(+year);
   }
 
   @ApiOperation({ summary: 'Find delivery by ID' })

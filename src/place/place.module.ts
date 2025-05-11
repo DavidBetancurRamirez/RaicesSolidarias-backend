@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { PlaceController } from './place.controller';
@@ -15,10 +15,11 @@ import { PlaceService } from './place.service';
   imports: [
     MongooseModule.forFeature([{ name: Place.name, schema: PlaceSchema }]),
     AuthModule,
-    DeliveryModule,
     UploadModule,
+    forwardRef(() => DeliveryModule),
   ],
   controllers: [PlaceController],
   providers: [PlaceService],
+  exports: [PlaceService],
 })
 export class PlaceModule {}

@@ -92,11 +92,11 @@ export class PlaceController {
     return this.placeService.findAll();
   }
 
-  @ApiOperation({ summary: 'Find place by delivery Year' })
-  @ApiParam({ name: 'year', description: 'Year of the place delivery' })
-  @Get('/year/:year')
-  findByYear(@Param('id') id: string): Promise<Place | null> {
-    return this.placeService.findByYear(+id);
+  @ApiOperation({ summary: 'Find place by delivery ID' })
+  @ApiParam({ name: 'deliveryId', description: 'deliveryId of the place delivery' })
+  @Get('/delivery/:deliveryId')
+  findByYear(@Param('deliveryId') deliveryId: string): Promise<Place[] | null> {
+    return this.placeService.findByDeliveryId(deliveryId);
   }
 
   @ApiOperation({ summary: 'Find place by ID' })
