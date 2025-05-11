@@ -1,7 +1,7 @@
 import { User } from '@/user/user.schema';
 
 export interface LoginResponse {
-  accessToken: string;
+  accessToken?: string;
   refreshToken: string;
   data: User;
 }

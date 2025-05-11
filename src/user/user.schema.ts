@@ -3,7 +3,23 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { UserRoles } from '@/common/enums/user-roles.enum';
 
-@Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })
+@Schema({
+  timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' },
+  toObject: {
+    transform(_, ret) {
+      delete ret.deletedAt;
+      delete ret.password;
+      return ret;
+    },
+  },
+  toJSON: {
+    transform(_, ret) {
+      delete ret.deletedAt;
+      delete ret.password;
+      return ret;
+    },
+  },
+})
 export class User extends Document {
   @Prop({ type: Date, default: null })
   deletedAt: Date | null;

@@ -26,6 +26,7 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'User name',
   })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MinLength(1)

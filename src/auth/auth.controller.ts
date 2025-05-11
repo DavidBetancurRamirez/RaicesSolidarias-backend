@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -16,19 +17,42 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Register' })
   @Post('register')
-  register(@Body() registerDto: CreateUserDto): Promise<LoginResponse> {
-    return this.authService.register(registerDto);
+  async register(
+    @Body() registerDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponse> {
+    const { accessToken, ...rest } = await this.authService.register(registerDto);
+
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+
+    return rest;
   }
 
   @ApiOperation({ summary: 'Login' })
   @Post('login')
-  login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponse> {
+    const { accessToken, ...rest } = await this.authService.login(loginDto);
+
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+
+    return rest;
   }
 
   @ApiOperation({ summary: 'Refresh Token' })
   @Post('refresh-token')
-  refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<LoginResponse> {
-    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponse> {
+    const { accessToken, ...rest } = await this.authService.refreshToken(
+      refreshTokenDto.refreshToken,
+    );
+
+    res.setHeader('Authorization', `Bearer ${accessToken}`);
+
+    return rest;
   }
 }
