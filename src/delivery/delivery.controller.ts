@@ -46,23 +46,23 @@ export class DeliveryController {
 
   @Auth([UserRoles.ADMIN])
   @ResponsesSecurity()
-  @ApiOperation({ summary: 'Upload delivery images' })
+  @ApiOperation({ summary: 'Upload delivery media' })
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'mainImage', maxCount: 1 },
-      { name: 'tankYouImage', maxCount: 1 },
+      { name: 'tankYouMedia', maxCount: 1 },
     ]),
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UploadDeliveryImagesDto })
   @ApiParam({ name: 'id', description: 'ID of the delivery' })
-  @Post(':id/images')
+  @Post(':id/media')
   uploadImages(
     @ActiveUser() userActive: UserActiveInterface,
     @Param('id') deliveryId: string,
     @UploadedFiles() files: UploadDeliveryImagesDto,
   ): Promise<Delivery | null> {
-    return this.deliveryService.uploadImages(userActive.sub, deliveryId, files);
+    return this.deliveryService.uploadMedia(userActive.sub, deliveryId, files);
   }
 
   @ApiOperation({ summary: 'Find all deliveries' })

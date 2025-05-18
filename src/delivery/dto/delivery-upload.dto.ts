@@ -8,5 +8,5 @@ export class UploadDeliveryImagesDto {
 
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   @Type(() => Object)
-  tankYouImage?: Express.Multer.File[];
+  tankYouMedia?: Express.Multer.File[];
 }

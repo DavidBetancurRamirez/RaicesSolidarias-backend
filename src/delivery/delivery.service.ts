@@ -22,10 +22,8 @@ export class DeliveryService {
 
   async createOrUpdate(userId: string, createDeliveryDto: CreateDeliveryDto): Promise<Delivery> {
     const { id } = createDeliveryDto;
-    console.log('createDeliveryDto', createDeliveryDto);
 
     if (id) {
-      console.log('entra en id', id);
       const deliveryFound = await this.findById(id);
       if (!deliveryFound) {
         throw new BadRequestException('Entrega no encontrada');
@@ -52,7 +50,6 @@ export class DeliveryService {
     }
 
     const existedDelivery = await this.findByYear(createDeliveryDto.year);
-    console.log('existedDelivery', existedDelivery);
     if (existedDelivery) {
       throw new BadRequestException(`Ya existe una entrega con el año ${createDeliveryDto.year}`);
     }
@@ -109,7 +106,7 @@ export class DeliveryService {
     return { deleted: !!deletedDelivery };
   }
 
-  async uploadImages(
+  async uploadMedia(
     userId: string,
     deliveryId: string,
     files: UploadDeliveryImagesDto,
@@ -134,15 +131,15 @@ export class DeliveryService {
       deliveryFound.mainImageUrl = mainImageUrl.url;
     }
 
-    if (files?.tankYouImage?.[0]) {
-      const file = files.tankYouImage[0];
+    if (files?.tankYouMedia?.[0]) {
+      const file = files.tankYouMedia[0];
 
-      const imageUrl = await this.uploadService.uploadFile({
+      const mediaUrl = await this.uploadService.uploadFile({
         ...file,
-        originalname: `deliveries/${deliveryFound.year}/tankYouImage`,
+        originalname: `deliveries/${deliveryFound.year}/tankYouMedia`,
       });
 
-      deliveryFound.thankYou.imageUrl = imageUrl.url;
+      deliveryFound.thankYou.mediaUrl = mediaUrl.url;
     }
 
     return await this.deliveryModel

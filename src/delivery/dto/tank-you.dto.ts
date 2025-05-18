@@ -9,5 +9,5 @@ export class ThankYouDto {
   @ApiProperty({ description: 'URL de la imagen de agradecimiento', required: false })
   @IsOptional()
   @IsString()
-  imageUrl?: string;
+  mediaUrl?: string;
 }
