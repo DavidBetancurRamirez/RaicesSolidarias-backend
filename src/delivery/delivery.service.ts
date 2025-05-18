@@ -22,8 +22,10 @@ export class DeliveryService {
 
   async createOrUpdate(userId: string, createDeliveryDto: CreateDeliveryDto): Promise<Delivery> {
     const { id } = createDeliveryDto;
+    console.log('createDeliveryDto', createDeliveryDto);
 
     if (id) {
+      console.log('entra en id', id);
       const deliveryFound = await this.findById(id);
       if (!deliveryFound) {
         throw new BadRequestException('Entrega no encontrada');
@@ -50,6 +52,7 @@ export class DeliveryService {
     }
 
     const existedDelivery = await this.findByYear(createDeliveryDto.year);
+    console.log('existedDelivery', existedDelivery);
     if (existedDelivery) {
       throw new BadRequestException(`Ya existe una entrega con el año ${createDeliveryDto.year}`);
     }
@@ -76,8 +79,12 @@ export class DeliveryService {
     return deliveryFound ? deliveryFound.toObject() : null;
   }
 
-  async findByYear(year: number): Promise<DeliveryPlacesDto | null> {
+  async findByYear(year: number, returnPlaces?: boolean): Promise<DeliveryPlacesDto | null> {
     const deliveryFound = await this.deliveryModel.findOne({ year }).exec();
+    if (!returnPlaces) {
+      return deliveryFound ? deliveryFound?.toObject() : null;
+    }
+
     if (!deliveryFound || !deliveryFound._id) {
       throw new BadRequestException('Entrega no encontrada');
     }

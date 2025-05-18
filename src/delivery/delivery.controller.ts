@@ -75,7 +75,7 @@ export class DeliveryController {
   @ApiParam({ name: 'year', description: 'Year of the delivery' })
   @Get('/year/:year')
   findByYear(@Param('year') year: string): Promise<DeliveryPlacesDto | null> {
-    return this.deliveryService.findByYear(+year);
+    return this.deliveryService.findByYear(+year, true);
   }
 
   @ApiOperation({ summary: 'Find delivery by ID' })
