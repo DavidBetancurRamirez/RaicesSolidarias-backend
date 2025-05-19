@@ -8,7 +8,7 @@ export class UploadPlaceImagesDto {
 
   @ApiProperty({ type: 'string', format: 'binary', required: false })
   @Type(() => Object)
-  secondaryImage?: Express.Multer.File[];
+  secondaryMedia?: Express.Multer.File[];
 
   @ApiProperty({
     type: 'array',

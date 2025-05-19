@@ -128,15 +128,12 @@ export class PlaceService {
       .exec();
   }
 
-  async uploadImages(
+  async uploadMedia(
     userId: string,
     placeId: string,
     files: UploadPlaceImagesDto,
   ): Promise<Place | null> {
-    if (!isValidObjectId(placeId)) {
-      throw new BadRequestException('El id no es válido');
-    }
-
+    console.log('placeId', placeId);
     const placeFound = await this.findById(placeId);
     if (!placeFound) {
       throw new BadRequestException('Entrega no encontrada');
@@ -158,15 +155,15 @@ export class PlaceService {
       placeFound.mainImageUrl = mainImageUrl.url;
     }
 
-    if (files?.secondaryImage?.[0]) {
-      const file = files.secondaryImage[0];
+    if (files?.secondaryMedia?.[0]) {
+      const file = files.secondaryMedia[0];
 
-      const secondaryImageUrl = await this.uploadService.uploadFile({
+      const secondaryMediaUrl = await this.uploadService.uploadFile({
         ...file,
-        originalname: `deliveries/${deliveryFound.year}/places/${placeId}/secondaryImage`,
+        originalname: `deliveries/${deliveryFound.year}/places/${placeId}/secondaryMedia`,
       });
 
-      placeFound.secondaryImageUrl = secondaryImageUrl.url;
+      placeFound.secondaryMediaUrl = secondaryMediaUrl.url;
     }
 
     if (files?.gallery?.length) {

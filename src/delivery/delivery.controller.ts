@@ -57,7 +57,7 @@ export class DeliveryController {
   @ApiBody({ type: UploadDeliveryImagesDto })
   @ApiParam({ name: 'id', description: 'ID of the delivery' })
   @Post(':id/media')
-  uploadImages(
+  uploadDeliveryMedia(
     @ActiveUser() userActive: UserActiveInterface,
     @Param('id') deliveryId: string,
     @UploadedFiles() files: UploadDeliveryImagesDto,

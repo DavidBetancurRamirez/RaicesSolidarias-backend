@@ -44,7 +44,7 @@ export class Place extends Document {
   name: string;
 
   @Prop({ required: false })
-  secondaryImageUrl: string;
+  secondaryMediaUrl: string;
 
   @Prop({
     required: false,

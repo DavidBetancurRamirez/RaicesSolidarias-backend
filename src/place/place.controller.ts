@@ -46,24 +46,24 @@ export class PlaceController {
   }
 
   @Auth([UserRoles.ADMIN])
-  @ApiOperation({ summary: 'Upload images of a place' })
+  @ApiOperation({ summary: 'Upload place media' })
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'mainImage', maxCount: 1 },
-      { name: 'secondaryImage', maxCount: 1 },
+      { name: 'secondaryMedia', maxCount: 1 },
       { name: 'gallery', maxCount: 50 },
     ]),
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UploadPlaceImagesDto })
   @ApiParam({ name: 'id', description: 'ID of the place' })
-  @Post(':id/images')
-  async uploadPlaceImages(
+  @Post(':id/media')
+  async uploadPlaceMedia(
     @ActiveUser() userActive: UserActiveInterface,
     @Param('id') placeId: string,
     @UploadedFiles() files: UploadPlaceImagesDto,
   ): Promise<Place | null> {
-    return this.placeService.uploadImages(userActive.sub, placeId, files);
+    return this.placeService.uploadMedia(userActive.sub, placeId, files);
   }
 
   @Auth([UserRoles.ADMIN])
