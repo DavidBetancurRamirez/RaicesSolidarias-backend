@@ -133,13 +133,14 @@ export class PlaceService {
     placeId: string,
     files: UploadPlaceImagesDto,
   ): Promise<Place | null> {
-    console.log('placeId', placeId);
     const placeFound = await this.findById(placeId);
     if (!placeFound) {
       throw new BadRequestException('Entrega no encontrada');
     }
 
-    const deliveryFound = await this.deliveryService.findById(placeFound.deliveryId._id as string);
+    const deliveryFound = await this.deliveryService.findById(
+      placeFound.deliveryId as unknown as string,
+    );
     if (!deliveryFound) {
       throw new BadRequestException('Entrega no encontrada');
     }
