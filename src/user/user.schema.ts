@@ -21,6 +21,9 @@ import { UserRoles } from '@/common/enums/user-roles.enum';
   },
 })
 export class User extends Document {
+  @Prop({ required: false })
+  avatar: string;
+
   @Prop({ type: Date, default: null })
   deletedAt: Date | null;
 

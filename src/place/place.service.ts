@@ -61,7 +61,7 @@ export class PlaceService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const placeFound = await this.placeModel.findById(id).exec();
+    const placeFound = await this.placeModel.findById(id).populate('testimonials.createdBy').exec();
     return placeFound ? placeFound.toObject() : null;
   }
 
@@ -96,7 +96,7 @@ export class PlaceService {
   ): Promise<Place | null> {
     const { id } = testimonialDto;
 
-    if (!isValidObjectId(placeId) || !isValidObjectId(id)) {
+    if (!isValidObjectId(placeId) || (id && !isValidObjectId(id))) {
       throw new BadRequestException('El id no es válido');
     }
 
@@ -119,8 +119,8 @@ export class PlaceService {
     }
 
     placeFound.testimonials.push({
+      createdBy: new Types.ObjectId(userId),
       testimonial: testimonialDto.testimonial,
-      updatedBy: new Types.ObjectId(userId),
     });
 
     return await this.placeModel

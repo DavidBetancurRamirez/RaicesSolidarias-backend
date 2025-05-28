@@ -3,6 +3,14 @@ import { IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsString, MinLength } from 
 
 export class CreateUserDto {
   @ApiProperty({
+    description: 'Avatar of the user',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @ApiProperty({
     description: 'User Email',
   })
   @IsEmail()

@@ -10,14 +10,14 @@ import { Delivery } from '@/delivery/delivery.schema';
 export class Testimonial {
   _id?: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createdBy: User | Types.ObjectId;
+
   @Prop({ type: Date, default: null })
   deletedAt?: Date | null;
 
   @Prop({ required: true })
   testimonial: string;
-
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  updatedBy: User | Types.ObjectId;
 }
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })

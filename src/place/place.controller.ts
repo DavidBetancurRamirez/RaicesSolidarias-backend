@@ -74,7 +74,7 @@ export class PlaceController {
     return this.placeService.softDelete(id);
   }
 
-  @Auth([UserRoles.USER])
+  @Auth([UserRoles.ADMIN, UserRoles.USER])
   @ApiOperation({ summary: 'Create or update testimonials' })
   @ApiParam({ name: 'id', description: 'ID of the place' })
   @Patch(':id/testimonials')
