@@ -3,22 +3,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { StatisticDto } from '@/common/dto/statistic.dto';
 
-import { User } from '@/user/user.schema';
 import { Delivery } from '@/delivery/delivery.schema';
 
-@Schema()
-export class Testimonial {
-  _id?: Types.ObjectId;
-
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  createdBy: User | Types.ObjectId;
-
-  @Prop({ type: Date, default: null })
-  deletedAt?: Date | null;
-
-  @Prop({ required: true })
-  testimonial: string;
-}
+import { User } from '@/user/user.schema';
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })
 export class Place extends Document {
@@ -51,9 +38,6 @@ export class Place extends Document {
     type: [StatisticDto],
   })
   statistics: StatisticDto[];
-
-  @Prop({ type: [Testimonial], default: [] })
-  testimonials: Testimonial[];
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   updatedBy: User | Types.ObjectId;

@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   UploadedFiles,
   UseInterceptors,
@@ -18,7 +17,6 @@ import { ResponsesSecurity } from '@/common/decorators/responses-security.decora
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
-import { TestimonialDto } from './dto/testimonial.dto';
 import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 
 import { UserRoles } from '@/common/enums/user-roles.enum';
@@ -28,6 +26,7 @@ import { UserActiveInterface } from '@/common/interfaces/user.interface';
 import { Place } from './place.schema';
 
 import { PlaceService } from './place.service';
+import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
 
 @ResponsesSecurity()
 @ApiTags('place')
@@ -74,18 +73,6 @@ export class PlaceController {
     return this.placeService.softDelete(id);
   }
 
-  @Auth([UserRoles.ADMIN, UserRoles.USER])
-  @ApiOperation({ summary: 'Create or update testimonials' })
-  @ApiParam({ name: 'id', description: 'ID of the place' })
-  @Patch(':id/testimonials')
-  testimonials(
-    @ActiveUser() userActive: UserActiveInterface,
-    @Param('id') id: string,
-    @Body() testimonialDto: TestimonialDto,
-  ): Promise<Place | null> {
-    return this.placeService.testimonials(userActive.sub, id, testimonialDto);
-  }
-
   @ApiOperation({ summary: 'Find all places' })
   @Get()
   findAll(): Promise<Place[]> {
@@ -102,7 +89,7 @@ export class PlaceController {
   @ApiOperation({ summary: 'Find place by ID' })
   @ApiParam({ name: 'id', description: 'ID of the place' })
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Place | null> {
-    return this.placeService.findById(id);
+  findOne(@Param('id') id: string): Promise<PlaceTestimonialsDto | null> {
+    return this.placeService.findByIdWithTestimonials(id);
   }
 }

@@ -1,13 +1,20 @@
+import { Testimonial } from '@/testimonial/testimonial.schema';
+import { Place } from '../place.schema';
+import { CreatePlaceDto } from './create-place.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsArray, IsDate, IsMongoId, ValidateNested, IsOptional } from 'class-validator';
+import { IsArray, IsDate, IsMongoId, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Delivery } from '@/delivery/delivery.schema';
+import { Types } from 'mongoose';
 
-import { StatisticDto } from '@/common/dto/statistic.dto';
+export class PlaceWithTestimonialsDto extends CreatePlaceDto {
+  testimonials?: Testimonial[];
+}
 
-export class CreatePlaceDto {
+export class PlaceTestimonialsDto {
   @ApiProperty({ description: 'ID del delivery asociado', example: '60d21b4667d0d8992e610c85' })
   @IsMongoId()
-  deliveryId: string;
+  deliveryId: Delivery | Types.ObjectId;
 
   @ApiProperty({ description: 'Fecha de la entrega', example: '2025-05-10T00:00:00Z' })
   @IsDate()
@@ -17,14 +24,6 @@ export class CreatePlaceDto {
   @ApiProperty({ description: 'Descripción del lugar', example: 'Visitamos tal zona...' })
   @IsString()
   description: string;
-
-  @ApiProperty({
-    description: 'ID of the place to update. If not provided, a new place will be created.',
-    required: false,
-  })
-  @IsOptional()
-  @IsMongoId()
-  id?: string;
 
   @ApiProperty({
     description: 'URLs de la galería de imágenes',
@@ -55,14 +54,9 @@ export class CreatePlaceDto {
   @IsString()
   secondaryMediaUrl: string;
 
-  @ApiProperty({
-    description: 'Estadísticas del lugar',
-    type: [StatisticDto],
-    required: false,
-  })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StatisticDto)
-  statistics: StatisticDto[];
+  testimonials?: Testimonial[];
+}
+
+export interface PlaceWithTestimonials extends Place {
+  testimonials?: Testimonial[];
 }

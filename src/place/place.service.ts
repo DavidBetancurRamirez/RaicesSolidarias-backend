@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model, Types } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
@@ -12,8 +12,9 @@ import { UploadedFileResponse } from '@/upload/interfaces/storage.interface';
 import { Place } from './place.schema';
 
 import { DeliveryService } from '@/delivery/delivery.service';
+import { TestimonialService } from '@/testimonial/testimonial.service';
 import { UploadService } from '@/upload/upload.service';
-import { TestimonialDto } from './dto/testimonial.dto';
+import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
 
 @Injectable()
 export class PlaceService {
@@ -21,6 +22,8 @@ export class PlaceService {
     @InjectModel(Place.name) private placeModel: Model<Place>,
     @Inject(forwardRef(() => DeliveryService))
     private readonly deliveryService: DeliveryService,
+    // @Inject(forwardRef(() => TestimonialService))
+    private readonly testimonialService: TestimonialService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -61,8 +64,21 @@ export class PlaceService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const placeFound = await this.placeModel.findById(id).populate('testimonials.createdBy').exec();
+    const placeFound = await this.placeModel.findById(id).exec();
     return placeFound ? placeFound.toObject() : null;
+  }
+
+  async findByIdWithTestimonials(id: string): Promise<PlaceTestimonialsDto | null> {
+    const placeFound = await this.findById(id);
+    if (!placeFound) {
+      throw new BadRequestException('Entrega no encontrada');
+    }
+
+    const testimonials = await this.testimonialService.findByPlaceId(id);
+    return {
+      ...placeFound,
+      testimonials: testimonials || [],
+    };
   }
 
   async findByDeliveryId(deliveryId: string): Promise<Place[] | null> {
@@ -82,50 +98,12 @@ export class PlaceService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
+
     const deletedPlace = await this.placeModel
       .findByIdAndUpdate(id, { deletedAt: new Date() })
       .exec();
 
     return { deleted: !!deletedPlace };
-  }
-
-  async testimonials(
-    userId: string,
-    placeId: string,
-    testimonialDto: TestimonialDto,
-  ): Promise<Place | null> {
-    const { id } = testimonialDto;
-
-    if (!isValidObjectId(placeId) || (id && !isValidObjectId(id))) {
-      throw new BadRequestException('El id no es válido');
-    }
-
-    const placeFound = await this.findById(placeId);
-    if (!placeFound) {
-      throw new BadRequestException('Entrega no encontrada');
-    }
-
-    if (id) {
-      const testimonialFound = placeFound.testimonials.find((t) => t?._id?.toString() === id);
-      if (!testimonialFound) {
-        throw new BadRequestException('Testimonio no encontrado');
-      }
-
-      if (testimonialDto.delete) {
-        testimonialFound.deletedAt = new Date();
-      } else {
-        testimonialFound.testimonial = testimonialDto.testimonial;
-      }
-    }
-
-    placeFound.testimonials.push({
-      createdBy: new Types.ObjectId(userId),
-      testimonial: testimonialDto.testimonial,
-    });
-
-    return await this.placeModel
-      .findByIdAndUpdate(placeId, { $set: placeFound }, { new: true })
-      .exec();
   }
 
   async uploadMedia(
