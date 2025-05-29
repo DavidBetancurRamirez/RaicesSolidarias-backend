@@ -1,0 +1,10 @@
+// {
+//     cantidadFamilias: 200,
+//     cobijas: 4,
+//     comidaMascotas: 8,
+//     juguetes: 100,
+//     kits: 150,
+//     mercados: 50,
+//     refrigerios: 300,
+//     voluntarios: 1,
+//   },

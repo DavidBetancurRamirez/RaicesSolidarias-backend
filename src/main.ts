@@ -17,9 +17,11 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
+      enableDebugMessages: true,
+      forbidNonWhitelisted: false,
+      forbidUnknownValues: true,
       transform: true,
+      whitelist: true,
     }),
   );
 
@@ -30,7 +32,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Raices Solidarias API')
-    .setDescription('API para la gestion de Raices Solidarias')
+    .setDescription('API para la APP de Raices Solidarias')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
