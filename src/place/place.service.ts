@@ -22,7 +22,6 @@ export class PlaceService {
     @InjectModel(Place.name) private placeModel: Model<Place>,
     @Inject(forwardRef(() => DeliveryService))
     private readonly deliveryService: DeliveryService,
-    // @Inject(forwardRef(() => TestimonialService))
     private readonly testimonialService: TestimonialService,
     private readonly uploadService: UploadService,
   ) {}
@@ -137,28 +136,31 @@ export class PlaceService {
     if (files?.secondaryMedia?.[0]) {
       const file = files.secondaryMedia[0];
 
-      const secondaryMediaUrl = await this.uploadService.uploadFile({
+      const secondaryMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/places/${placeId}/secondaryMedia`,
       });
 
-      placeFound.secondaryMediaUrl = secondaryMediaUrl.url;
+      placeFound.secondaryMedia = {
+        type: secondaryMedia.type,
+        url: secondaryMedia.url,
+      };
     }
 
     if (files?.gallery?.length) {
-      const galleryImages: UploadedFileResponse[] = await this.uploadService.uploadFiles(
+      const galleryMedia: UploadedFileResponse[] = await this.uploadService.uploadFiles(
         files.gallery.map((file) => ({
           ...file,
           originalname: `deliveries/${deliveryFound.year}/places/${placeId}/gallery/${uuidv4()}`,
         })),
       );
 
-      const galleryImageUrls = galleryImages.map((image) => image.url);
+      const galleryImageUrls = galleryMedia.map((media) => ({
+        type: media.type,
+        url: media.url,
+      }));
 
-      placeFound.galleryImageUrls = [
-        ...(placeFound.galleryImageUrls || []),
-        ...(galleryImageUrls || []),
-      ];
+      placeFound.galleryMedia = [...(placeFound.galleryMedia || []), ...(galleryImageUrls || [])];
     }
 
     return await this.placeModel

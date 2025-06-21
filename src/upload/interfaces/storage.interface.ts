@@ -1,6 +1,9 @@
+import { TypeOfMedia } from '@/common/dto/media.dto';
+
 export interface UploadedFileResponse {
-  url: string;
   filename: string;
+  type: TypeOfMedia;
+  url: string;
 }
 
 export interface StorageAdapter {

@@ -1,15 +1,12 @@
-import { Testimonial } from '@/testimonial/testimonial.schema';
-import { Place } from '../place.schema';
-import { CreatePlaceDto } from './create-place.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsDate, IsMongoId, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Delivery } from '@/delivery/delivery.schema';
 import { Types } from 'mongoose';
 
-export class PlaceWithTestimonialsDto extends CreatePlaceDto {
-  testimonials?: Testimonial[];
-}
+import { MediaDto } from '@/common/dto/media.dto';
+
+import { Delivery } from '@/delivery/delivery.schema';
+import { Testimonial } from '@/testimonial/testimonial.schema';
 
 export class PlaceTestimonialsDto {
   @ApiProperty({ description: 'ID del delivery asociado', example: '60d21b4667d0d8992e610c85' })
@@ -26,13 +23,13 @@ export class PlaceTestimonialsDto {
   description: string;
 
   @ApiProperty({
-    description: 'URLs de la galería de imágenes',
+    description: 'URLs de la galería',
     required: false,
   })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  galleryImageUrls?: string[];
+  @Type(() => MediaDto)
+  galleryMedia?: MediaDto[];
 
   @ApiProperty({
     description: 'URL de la imagen principal',
@@ -51,12 +48,14 @@ export class PlaceTestimonialsDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  secondaryMediaUrl: string;
+  @Type(() => MediaDto)
+  secondaryMedia: MediaDto;
 
-  testimonials?: Testimonial[];
-}
-
-export interface PlaceWithTestimonials extends Place {
+  @ApiProperty({
+    description: 'Testimonios asociados al lugar',
+    required: false,
+    type: [Testimonial],
+  })
+  @IsOptional()
   testimonials?: Testimonial[];
 }

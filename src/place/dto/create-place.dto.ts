@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsArray, IsDate, IsMongoId, ValidateNested, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
+import { MediaDto } from '@/common/dto/media.dto';
 import { StatisticDto } from '@/common/dto/statistic.dto';
 
 export class CreatePlaceDto {
@@ -27,13 +28,13 @@ export class CreatePlaceDto {
   id?: string;
 
   @ApiProperty({
-    description: 'URLs de la galería de imágenes',
+    description: 'URLs de la galería',
     required: false,
   })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  galleryImageUrls?: string[];
+  @Type(() => MediaDto)
+  galleryMedia?: MediaDto[];
 
   @ApiProperty({
     description: 'URL de la imagen principal',
@@ -52,8 +53,8 @@ export class CreatePlaceDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  secondaryMediaUrl: string;
+  @Type(() => MediaDto)
+  secondaryMedia: MediaDto;
 
   @ApiProperty({
     description: 'Estadísticas del lugar',

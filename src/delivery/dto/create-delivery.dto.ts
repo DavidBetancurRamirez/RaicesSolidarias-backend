@@ -58,5 +58,5 @@ export class CreateDeliveryDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ThankYouDto)
-  thankYou: ThankYouDto;
+  thankYou?: ThankYouDto;
 }

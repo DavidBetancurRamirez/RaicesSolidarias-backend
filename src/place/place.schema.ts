@@ -2,6 +2,7 @@ import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { StatisticDto } from '@/common/dto/statistic.dto';
+import { MediaDto } from '@/common/dto/media.dto';
 
 import { Delivery } from '@/delivery/delivery.schema';
 
@@ -21,8 +22,8 @@ export class Place extends Document {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ type: [String], required: false })
-  galleryImageUrls: string[];
+  @Prop({ type: [MediaDto], required: false })
+  galleryMedia: MediaDto[];
 
   @Prop({ required: false })
   mainImageUrl: string;
@@ -30,8 +31,8 @@ export class Place extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: false })
-  secondaryMediaUrl: string;
+  @Prop({ required: false, type: MediaDto })
+  secondaryMedia: MediaDto;
 
   @Prop({
     required: false,

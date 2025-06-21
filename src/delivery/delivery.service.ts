@@ -134,12 +134,15 @@ export class DeliveryService {
     if (files?.tankYouMedia?.[0]) {
       const file = files.tankYouMedia[0];
 
-      const mediaUrl = await this.uploadService.uploadFile({
+      const tankYouMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/tankYouMedia`,
       });
 
-      deliveryFound.thankYou.mediaUrl = mediaUrl.url;
+      deliveryFound.thankYou.media = {
+        url: tankYouMedia.url,
+        type: tankYouMedia.type,
+      };
     }
 
     return await this.deliveryModel
