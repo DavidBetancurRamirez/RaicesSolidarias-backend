@@ -31,6 +31,9 @@ export class Place extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: false })
+  recommended: boolean;
+
   @Prop({ required: false, type: MediaDto })
   secondaryMedia: MediaDto;
 

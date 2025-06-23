@@ -1,5 +1,13 @@
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsArray, IsDate, IsMongoId, ValidateNested, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import { MediaDto } from '@/common/dto/media.dto';
@@ -47,6 +55,14 @@ export class CreatePlaceDto {
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
   name: string;
+
+  @ApiProperty({
+    description: 'Indica si el lugar es recomendado',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  recommended?: boolean;
 
   @ApiProperty({
     description: 'URL de la media secundaria',

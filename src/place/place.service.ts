@@ -93,6 +93,15 @@ export class PlaceService {
     return places ? places.map((place) => place.toObject()) : null;
   }
 
+  async findByRecommended(recommended: boolean = true): Promise<Place[]> {
+    const places = await this.placeModel
+      .find({ recommended: recommended })
+      .select(['name', 'mainImageUrl', 'deliveryDate', 'description'])
+      .exec();
+
+    return places ? places.map((place) => place.toObject()) : [];
+  }
+
   async softDelete(id: string): Promise<DeleteResponseDto> {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
