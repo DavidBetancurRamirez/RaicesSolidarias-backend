@@ -60,7 +60,7 @@ export class TestimonialService {
   }
 
   async findAll(): Promise<Testimonial[]> {
-    const testimonials = await this.testimonialModel.find().exec();
+    const testimonials = await this.testimonialModel.find({ deletedAt: null }).exec();
     return testimonials.map((testimonial) => testimonial.toObject());
   }
 
@@ -68,7 +68,10 @@ export class TestimonialService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const testimonialFound = await this.testimonialModel.findById(id).exec();
+
+    const testimonialFound = await this.testimonialModel
+      .findOne({ _id: id, deletedAt: null })
+      .exec();
     return testimonialFound ? testimonialFound.toObject() : null;
   }
 
@@ -76,6 +79,7 @@ export class TestimonialService {
     if (!isValidObjectId(place)) {
       throw new BadRequestException('El id no es válido');
     }
+
     const testimonials = await this.testimonialModel
       .find({ place, deletedAt: null })
       .populate('createdBy')

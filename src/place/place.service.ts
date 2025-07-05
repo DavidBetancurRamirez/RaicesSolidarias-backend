@@ -55,7 +55,7 @@ export class PlaceService {
   }
 
   async findAll(): Promise<Place[]> {
-    const places = await this.placeModel.find().exec();
+    const places = await this.placeModel.find({ deletedAt: null }).exec();
     return places.map((place) => place.toObject());
   }
 
@@ -63,7 +63,8 @@ export class PlaceService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const placeFound = await this.placeModel.findById(id).exec();
+
+    const placeFound = await this.placeModel.findOne({ _id: id, deletedAt: null }).exec();
     return placeFound ? placeFound.toObject() : null;
   }
 
@@ -86,7 +87,7 @@ export class PlaceService {
     }
 
     const places = await this.placeModel
-      .find({ deliveryId })
+      .find({ deliveryId, deletedAt: null })
       .select(['name', 'mainImageUrl', 'deliveryDate', 'description'])
       .exec();
 
@@ -95,7 +96,7 @@ export class PlaceService {
 
   async findByRecommended(recommended: boolean = true): Promise<Place[]> {
     const places = await this.placeModel
-      .find({ recommended: recommended })
+      .find({ recommended: recommended, deletedAt: null })
       .select(['name', 'mainImageUrl', 'deliveryDate', 'description'])
       .exec();
 

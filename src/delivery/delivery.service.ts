@@ -61,10 +61,11 @@ export class DeliveryService {
 
   async findAll(): Promise<Delivery[]> {
     const deliveries = await this.deliveryModel
-      .find()
+      .find({ deletedAt: null })
       .select(['year', 'mainImageUrl', 'description'])
       .sort({ year: -1 })
       .exec();
+
     return deliveries.map((delivery) => delivery.toObject());
   }
 
@@ -72,12 +73,13 @@ export class DeliveryService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const deliveryFound = await this.deliveryModel.findById(id).exec();
+
+    const deliveryFound = await this.deliveryModel.findOne({ _id: id, deletedAt: null }).exec();
     return deliveryFound ? deliveryFound.toObject() : null;
   }
 
   async findByYear(year: number, returnPlaces?: boolean): Promise<DeliveryPlacesDto | null> {
-    const deliveryFound = await this.deliveryModel.findOne({ year }).exec();
+    const deliveryFound = await this.deliveryModel.findOne({ year, deletedAt: null }).exec();
     if (!returnPlaces) {
       return deliveryFound ? deliveryFound?.toObject() : null;
     }
