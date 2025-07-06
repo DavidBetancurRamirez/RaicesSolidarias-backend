@@ -33,12 +33,12 @@ export class CreateDeliveryDto {
   id?: string;
 
   @ApiProperty({
-    description: 'URL de la imagen principal',
+    description: 'Fotos y videos del lugar',
     required: false,
   })
   @IsOptional()
   @IsString()
-  mainImageUrl?: string;
+  mainImage?: string;
 
   @ApiProperty({
     description: 'Estadísticas de la entrega',

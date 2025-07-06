@@ -18,7 +18,7 @@ export class Delivery extends Document {
   description: string;
 
   @Prop({ required: false })
-  mainImageUrl: string;
+  mainImage: string;
 
   @Prop({
     required: false,

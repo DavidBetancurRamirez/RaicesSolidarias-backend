@@ -36,7 +36,7 @@ export class CreatePlaceDto {
   id?: string;
 
   @ApiProperty({
-    description: 'URLs de la galería',
+    description: 'Fotos y videos del lugar',
     required: false,
   })
   @IsOptional()
@@ -45,12 +45,12 @@ export class CreatePlaceDto {
   galleryMedia?: MediaDto[];
 
   @ApiProperty({
-    description: 'URL de la imagen principal',
+    description: 'Imagen principal del lugar',
     required: false,
   })
   @IsOptional()
-  @IsString()
-  mainImageUrl?: string;
+  @Type(() => MediaDto)
+  mainImage?: MediaDto;
 
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
@@ -65,7 +65,7 @@ export class CreatePlaceDto {
   recommended?: boolean;
 
   @ApiProperty({
-    description: 'URL de la media secundaria',
+    description: 'Media secundaria del lugar',
     required: false,
   })
   @IsOptional()

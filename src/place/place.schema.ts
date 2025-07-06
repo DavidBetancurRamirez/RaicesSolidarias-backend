@@ -25,8 +25,8 @@ export class Place extends Document {
   @Prop({ type: [MediaDto], required: false })
   galleryMedia: MediaDto[];
 
-  @Prop({ required: false })
-  mainImageUrl: string;
+  @Prop({ required: false, type: MediaDto })
+  mainImage: MediaDto;
 
   @Prop({ required: true })
   name: string;
