@@ -28,12 +28,12 @@ export class CreatePlaceDto {
   description: string;
 
   @ApiProperty({
-    description: 'ID of the place to update. If not provided, a new place will be created.',
+    description: 'Indica si el lugar es destacado',
     required: false,
   })
   @IsOptional()
-  @IsMongoId()
-  id?: string;
+  @IsBoolean()
+  featured?: boolean;
 
   @ApiProperty({
     description: 'Fotos y videos del lugar',
@@ -43,6 +43,14 @@ export class CreatePlaceDto {
   @IsArray()
   @Type(() => MediaDto)
   galleryMedia?: MediaDto[];
+
+  @ApiProperty({
+    description: 'ID of the place to update. If not provided, a new place will be created.',
+    required: false,
+  })
+  @IsOptional()
+  @IsMongoId()
+  id?: string;
 
   @ApiProperty({
     description: 'Imagen principal del lugar',
@@ -55,14 +63,6 @@ export class CreatePlaceDto {
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
   name: string;
-
-  @ApiProperty({
-    description: 'Indica si el lugar es recomendado',
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  recommended?: boolean;
 
   @ApiProperty({
     description: 'Media secundaria del lugar',

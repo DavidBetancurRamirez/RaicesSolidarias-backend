@@ -86,12 +86,12 @@ export class PlaceController {
     return this.placeService.findByDeliveryId(deliveryId);
   }
 
-  @ApiOperation({ summary: 'Find recommended places' })
-  @ApiParam({ name: 'isRecommended', description: 'Recommendation of the place', required: false })
-  @Get('/recommended/:isRecommended')
-  findByRecommended(@Param('isRecommended') isRecommended?: string): Promise<Place[] | null> {
-    const recommended = isRecommended === undefined ? true : isRecommended === 'true';
-    return this.placeService.findByRecommended(recommended);
+  @ApiOperation({ summary: 'Find featured places' })
+  @ApiParam({ name: 'featured', description: 'Recommendation of the place', required: false })
+  @Get('/featured/:featured')
+  findByFeatured(@Param('featured') featured?: string): Promise<Place[] | null> {
+    const featuredBoolean = featured === undefined ? true : featured === 'true';
+    return this.placeService.findByFeatured(featuredBoolean);
   }
 
   @ApiOperation({ summary: 'Find place by ID' })

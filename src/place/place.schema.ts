@@ -22,6 +22,9 @@ export class Place extends Document {
   @Prop({ required: true })
   description: string;
 
+  @Prop({ required: false })
+  featured: boolean;
+
   @Prop({ type: [MediaDto], required: false })
   galleryMedia: MediaDto[];
 
@@ -30,9 +33,6 @@ export class Place extends Document {
 
   @Prop({ required: true })
   name: string;
-
-  @Prop({ required: false })
-  recommended: boolean;
 
   @Prop({ required: false, type: MediaDto })
   secondaryMedia: MediaDto;

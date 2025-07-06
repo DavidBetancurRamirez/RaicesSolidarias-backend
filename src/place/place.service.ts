@@ -94,9 +94,9 @@ export class PlaceService {
     return places ? places.map((place) => place.toObject()) : null;
   }
 
-  async findByRecommended(recommended: boolean = true): Promise<Place[]> {
+  async findByFeatured(featured: boolean = true): Promise<Place[]> {
     const places = await this.placeModel
-      .find({ recommended: recommended, deletedAt: null })
+      .find({ featured, deletedAt: null })
       .select(['name', 'mainMedia', 'deliveryDate', 'description'])
       .exec();
 
