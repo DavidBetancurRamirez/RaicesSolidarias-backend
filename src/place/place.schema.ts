@@ -1,8 +1,8 @@
 import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-import { StatisticDto } from '@/common/dto/statistic.dto';
 import { MediaDto } from '@/common/dto/media.dto';
+import { StatisticDto } from '@/common/dto/statistic.dto';
 
 import { Delivery } from '@/delivery/delivery.schema';
 
@@ -26,7 +26,7 @@ export class Place extends Document {
   galleryMedia: MediaDto[];
 
   @Prop({ required: false, type: MediaDto })
-  mainImage: MediaDto;
+  mainMedia: MediaDto;
 
   @Prop({ required: true })
   name: string;

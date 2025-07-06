@@ -88,7 +88,7 @@ export class PlaceService {
 
     const places = await this.placeModel
       .find({ deliveryId, deletedAt: null })
-      .select(['name', 'mainImage', 'deliveryDate', 'description'])
+      .select(['name', 'mainMedia', 'deliveryDate', 'description'])
       .exec();
 
     return places ? places.map((place) => place.toObject()) : null;
@@ -97,7 +97,7 @@ export class PlaceService {
   async findByRecommended(recommended: boolean = true): Promise<Place[]> {
     const places = await this.placeModel
       .find({ recommended: recommended, deletedAt: null })
-      .select(['name', 'mainImage', 'deliveryDate', 'description'])
+      .select(['name', 'mainMedia', 'deliveryDate', 'description'])
       .exec();
 
     return places ? places.map((place) => place.toObject()) : [];
@@ -135,14 +135,14 @@ export class PlaceService {
     if (files?.mainImage?.[0]) {
       const file = files.mainImage[0];
 
-      const mainImage = await this.uploadService.uploadFile({
+      const mainMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/places/${placeId}/mainImage`,
       });
 
-      placeFound.mainImage = {
-        type: mainImage.type,
-        url: mainImage.url,
+      placeFound.mainMedia = {
+        type: mainMedia.type,
+        url: mainMedia.url,
       };
     }
 

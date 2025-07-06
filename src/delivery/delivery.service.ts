@@ -62,7 +62,7 @@ export class DeliveryService {
   async findAll(): Promise<Delivery[]> {
     const deliveries = await this.deliveryModel
       .find({ deletedAt: null })
-      .select(['year', 'mainImage', 'description'])
+      .select(['year', 'mainMedia', 'description'])
       .sort({ year: -1 })
       .exec();
 
@@ -125,12 +125,15 @@ export class DeliveryService {
     if (files?.mainImage?.[0]) {
       const file = files.mainImage[0];
 
-      const mainImage = await this.uploadService.uploadFile({
+      const mainMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/mainImage`,
       });
 
-      deliveryFound.mainImage = mainImage.url;
+      deliveryFound.mainMedia = {
+        url: mainMedia.url,
+        type: mainMedia.type,
+      };
     }
 
     if (files?.tankYouMedia?.[0]) {

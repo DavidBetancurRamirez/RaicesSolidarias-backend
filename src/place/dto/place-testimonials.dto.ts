@@ -37,7 +37,7 @@ export class PlaceTestimonialsDto {
   })
   @IsOptional()
   @Type(() => MediaDto)
-  mainImage?: MediaDto;
+  mainMedia?: MediaDto;
 
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
