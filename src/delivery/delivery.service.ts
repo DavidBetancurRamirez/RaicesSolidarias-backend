@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
@@ -26,7 +26,7 @@ export class DeliveryService {
     if (id) {
       const deliveryFound = await this.findById(id);
       if (!deliveryFound) {
-        throw new BadRequestException('Entrega no encontrada');
+        throw new NotFoundException('Entrega no encontrada');
       }
 
       if (deliveryFound.year !== createDeliveryDto.year) {
@@ -61,10 +61,11 @@ export class DeliveryService {
 
   async findAll(): Promise<Delivery[]> {
     const deliveries = await this.deliveryModel
-      .find()
-      .select(['year', 'mainImageUrl', 'description'])
+      .find({ deletedAt: null })
+      .select(['year', 'mainMedia', 'description'])
       .sort({ year: -1 })
       .exec();
+
     return deliveries.map((delivery) => delivery.toObject());
   }
 
@@ -72,18 +73,19 @@ export class DeliveryService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const deliveryFound = await this.deliveryModel.findById(id).exec();
+
+    const deliveryFound = await this.deliveryModel.findOne({ _id: id, deletedAt: null }).exec();
     return deliveryFound ? deliveryFound.toObject() : null;
   }
 
   async findByYear(year: number, returnPlaces?: boolean): Promise<DeliveryPlacesDto | null> {
-    const deliveryFound = await this.deliveryModel.findOne({ year }).exec();
+    const deliveryFound = await this.deliveryModel.findOne({ year, deletedAt: null }).exec();
     if (!returnPlaces) {
       return deliveryFound ? deliveryFound?.toObject() : null;
     }
 
     if (!deliveryFound || !deliveryFound._id) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -117,29 +119,35 @@ export class DeliveryService {
 
     const deliveryFound = await this.findById(deliveryId);
     if (!deliveryFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     if (files?.mainImage?.[0]) {
       const file = files.mainImage[0];
 
-      const mainImageUrl = await this.uploadService.uploadFile({
+      const mainMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/mainImage`,
       });
 
-      deliveryFound.mainImageUrl = mainImageUrl.url;
+      deliveryFound.mainMedia = {
+        url: mainMedia.url,
+        type: mainMedia.type,
+      };
     }
 
     if (files?.tankYouMedia?.[0]) {
       const file = files.tankYouMedia[0];
 
-      const mediaUrl = await this.uploadService.uploadFile({
+      const tankYouMedia = await this.uploadService.uploadFile({
         ...file,
         originalname: `deliveries/${deliveryFound.year}/tankYouMedia`,
       });
 
-      deliveryFound.thankYou.mediaUrl = mediaUrl.url;
+      deliveryFound.thankYou.media = {
+        url: tankYouMedia.url,
+        type: tankYouMedia.type,
+      };
     }
 
     return await this.deliveryModel

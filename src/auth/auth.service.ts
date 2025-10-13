@@ -22,7 +22,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<LoginResponse> {
-    const invalid_message = 'Invalid credentials';
+    const invalid_message = 'Correo o contraseña inválidos';
 
     const user = await this.userService.findByEmail(loginDto.email);
     if (!user) {

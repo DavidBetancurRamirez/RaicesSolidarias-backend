@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+import { MediaDto } from '@/common/dto/media.dto';
 import { StatisticDto } from '../common/dto/statistic.dto';
 import { ThankYouDto } from './dto/tank-you.dto';
 
@@ -17,8 +18,8 @@ export class Delivery extends Document {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: false })
-  mainImageUrl: string;
+  @Prop({ required: false, type: MediaDto })
+  mainMedia: MediaDto;
 
   @Prop({
     required: false,

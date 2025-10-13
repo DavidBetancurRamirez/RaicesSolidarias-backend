@@ -43,9 +43,18 @@ export class AzureStorageAdapter implements StorageAdapter {
       blobHTTPHeaders: { blobContentType: file.mimetype },
     });
 
+    // Determine the type of the file based on its MIME type
+    let type: 'image' | 'video' | 'other' = 'other';
+    if (file.mimetype.startsWith('image/')) {
+      type = 'image';
+    } else if (file.mimetype.startsWith('video/')) {
+      type = 'video';
+    }
+
     return {
       url: blockBlobClient.url,
       filename,
+      type,
     };
   }
 

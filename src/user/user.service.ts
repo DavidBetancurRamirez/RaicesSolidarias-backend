@@ -1,5 +1,5 @@
 import * as bcryptjs from 'bcryptjs';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
@@ -24,7 +24,7 @@ export class UserService {
     if (id) {
       const userFound = await this.findById(id);
       if (!userFound) {
-        throw new BadRequestException('Usuario no encontrado');
+        throw new NotFoundException('Usuario no encontrado');
       }
 
       return (
@@ -43,7 +43,7 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    const users = await this.userModel.find().exec();
+    const users = await this.userModel.find({ deletedAt: null }).exec();
     return users.map((user) => user.toObject());
   }
 
@@ -51,12 +51,13 @@ export class UserService {
     if (!isValidObjectId(id)) {
       throw new BadRequestException('El id no es válido');
     }
-    const userFound = await this.userModel.findById(id).exec();
+
+    const userFound = await this.userModel.findOne({ _id: id, deletedAt: null }).exec();
     return userFound ? userFound.toObject() : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this.userModel.findOne({ email });
+    return await this.userModel.findOne({ email, deletedAt: null });
   }
 
   async hashPassword(password: string): Promise<string> {

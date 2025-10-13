@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+import { MediaDto } from '@/common/dto/media.dto';
 import { StatisticDto } from '../../common/dto/statistic.dto';
 import { ThankYouDto } from './tank-you.dto';
 
@@ -33,12 +34,12 @@ export class CreateDeliveryDto {
   id?: string;
 
   @ApiProperty({
-    description: 'URL de la imagen principal',
+    description: 'Imagen principal del lugar',
     required: false,
   })
   @IsOptional()
-  @IsString()
-  mainImageUrl?: string;
+  @Type(() => MediaDto)
+  mainMedia?: MediaDto;
 
   @ApiProperty({
     description: 'Estadísticas de la entrega',
@@ -58,5 +59,5 @@ export class CreateDeliveryDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => ThankYouDto)
-  thankYou: ThankYouDto;
+  thankYou?: ThankYouDto;
 }

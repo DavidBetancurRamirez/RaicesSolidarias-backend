@@ -1,7 +1,16 @@
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsArray, IsDate, IsMongoId, ValidateNested, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
+import { MediaDto } from '@/common/dto/media.dto';
 import { StatisticDto } from '@/common/dto/statistic.dto';
 
 export class CreatePlaceDto {
@@ -19,6 +28,23 @@ export class CreatePlaceDto {
   description: string;
 
   @ApiProperty({
+    description: 'Indica si el lugar es destacado',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  featured?: boolean;
+
+  @ApiProperty({
+    description: 'Fotos y videos del lugar',
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @Type(() => MediaDto)
+  galleryMedia?: MediaDto[];
+
+  @ApiProperty({
     description: 'ID of the place to update. If not provided, a new place will be created.',
     required: false,
   })
@@ -27,33 +53,24 @@ export class CreatePlaceDto {
   id?: string;
 
   @ApiProperty({
-    description: 'URLs de la galería de imágenes',
+    description: 'Imagen principal del lugar',
     required: false,
   })
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  galleryImageUrls?: string[];
-
-  @ApiProperty({
-    description: 'URL de la imagen principal',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  mainImageUrl?: string;
+  @Type(() => MediaDto)
+  mainMedia?: MediaDto;
 
   @ApiProperty({ description: 'Nombre del lugar', example: 'Medellín' })
   @IsString()
   name: string;
 
   @ApiProperty({
-    description: 'URL de la media secundaria',
+    description: 'Media secundaria del lugar',
     required: false,
   })
   @IsOptional()
-  @IsString()
-  secondaryMediaUrl: string;
+  @Type(() => MediaDto)
+  secondaryMedia: MediaDto;
 
   @ApiProperty({
     description: 'Estadísticas del lugar',
