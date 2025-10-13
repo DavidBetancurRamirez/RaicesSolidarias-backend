@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
@@ -26,7 +26,7 @@ export class DeliveryService {
     if (id) {
       const deliveryFound = await this.findById(id);
       if (!deliveryFound) {
-        throw new BadRequestException('Entrega no encontrada');
+        throw new NotFoundException('Entrega no encontrada');
       }
 
       if (deliveryFound.year !== createDeliveryDto.year) {
@@ -85,7 +85,7 @@ export class DeliveryService {
     }
 
     if (!deliveryFound || !deliveryFound._id) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -119,7 +119,7 @@ export class DeliveryService {
 
     const deliveryFound = await this.findById(deliveryId);
     if (!deliveryFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     if (files?.mainImage?.[0]) {

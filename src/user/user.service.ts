@@ -1,5 +1,5 @@
 import * as bcryptjs from 'bcryptjs';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
@@ -24,7 +24,7 @@ export class UserService {
     if (id) {
       const userFound = await this.findById(id);
       if (!userFound) {
-        throw new BadRequestException('Usuario no encontrado');
+        throw new NotFoundException('Usuario no encontrado');
       }
 
       return (

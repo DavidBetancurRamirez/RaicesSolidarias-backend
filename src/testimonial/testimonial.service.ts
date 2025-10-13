@@ -1,6 +1,12 @@
-import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreateTestimonialDto } from './dto/create-testimonial.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
@@ -25,13 +31,13 @@ export class TestimonialService {
 
     const placeFound = await this.placeService.findById(place);
     if (!placeFound) {
-      throw new BadRequestException('Lugar no encontrado');
+      throw new NotFoundException('Lugar no encontrado');
     }
 
     if (id) {
       const testimonialFound = await this.findById(id);
       if (!testimonialFound) {
-        throw new BadRequestException('Testimonio no encontrado');
+        throw new NotFoundException('Testimonio no encontrado');
       }
 
       return (

@@ -1,11 +1,18 @@
-import { v4 as uuidv4 } from 'uuid';
-import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { UploadPlaceImagesDto } from './dto/place-upload.dto';
+import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
 
 import { UploadedFileResponse } from '@/upload/interfaces/storage.interface';
 
@@ -14,7 +21,6 @@ import { Place } from './place.schema';
 import { DeliveryService } from '@/delivery/delivery.service';
 import { TestimonialService } from '@/testimonial/testimonial.service';
 import { UploadService } from '@/upload/upload.service';
-import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
 
 @Injectable()
 export class PlaceService {
@@ -31,13 +37,13 @@ export class PlaceService {
 
     const deliveryFound = await this.deliveryService.findById(deliveryId);
     if (!deliveryFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     if (id) {
       const placeFound = await this.findById(id);
       if (!placeFound) {
-        throw new BadRequestException('Lugar no encontrado');
+        throw new NotFoundException('Lugar no encontrado');
       }
 
       return (
@@ -71,7 +77,7 @@ export class PlaceService {
   async findByIdWithTestimonials(id: string): Promise<PlaceTestimonialsDto | null> {
     const placeFound = await this.findById(id);
     if (!placeFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     const testimonials = await this.testimonialService.findByPlaceId(id);
@@ -122,14 +128,14 @@ export class PlaceService {
   ): Promise<Place | null> {
     const placeFound = await this.findById(placeId);
     if (!placeFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     const deliveryFound = await this.deliveryService.findById(
       placeFound.deliveryId as unknown as string,
     );
     if (!deliveryFound) {
-      throw new BadRequestException('Entrega no encontrada');
+      throw new NotFoundException('Entrega no encontrada');
     }
 
     if (files?.mainImage?.[0]) {
