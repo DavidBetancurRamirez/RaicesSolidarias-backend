@@ -45,6 +45,17 @@ export class CreatePlaceDto {
   galleryMedia?: MediaDto[];
 
   @ApiProperty({
+    description: 'Metas del lugar',
+    type: [StatisticDto],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StatisticDto)
+  goals: StatisticDto[];
+
+  @ApiProperty({
     description: 'ID of the place to update. If not provided, a new place will be created.',
     required: false,
   })

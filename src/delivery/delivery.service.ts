@@ -11,6 +11,7 @@ import { Delivery } from './delivery.schema';
 
 import { PlaceService } from '@/place/place.service';
 import { UploadService } from '@/upload/upload.service';
+import { StatisticDto } from '@/common/dto/statistic.dto';
 
 @Injectable()
 export class DeliveryService {
@@ -89,12 +90,40 @@ export class DeliveryService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    const places = await this.placeService.findByDeliveryId(deliveryFound._id.toString());
+    const places = await this.placeService.findByDeliveryId(deliveryFound?._id.toString());
 
     return {
       ...deliveryFound.toObject(),
       places,
     };
+  }
+
+  async recalculateStatistics(deliveryId: string): Promise<void> {
+    const places = await this.placeService.findByDeliveryId(deliveryId);
+    if (!places?.length) {
+      return;
+    }
+
+    // Combine statistics from all places
+    const combinedStats: Record<string, number> = {};
+
+    for (const place of places) {
+      for (const stat of place.statistics ?? []) {
+        combinedStats[stat.name] = (combinedStats[stat.name] ?? 0) + stat.value;
+      }
+    }
+
+    // Convert combined statistics back to arrays
+    const statsArray: StatisticDto[] = Object.entries(combinedStats).map(([name, value]) => ({
+      name,
+      value,
+    }));
+
+    await this.deliveryModel.findByIdAndUpdate(deliveryId, {
+      $set: {
+        statistics: statsArray,
+      },
+    });
   }
 
   async softDelete(id: string): Promise<DeleteResponseDto> {

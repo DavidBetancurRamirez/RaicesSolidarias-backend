@@ -11,8 +11,9 @@ import {
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
-import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
+import { StatisticDto } from '@/common/dto/statistic.dto';
+import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 
 import { UploadedFileResponse } from '@/upload/interfaces/storage.interface';
 
@@ -32,6 +33,20 @@ export class PlaceService {
     private readonly uploadService: UploadService,
   ) {}
 
+  private areStatisticsDifferent(
+    newStats: StatisticDto[] | undefined,
+    oldStats: StatisticDto[] | undefined,
+  ): boolean {
+    if (!newStats && !oldStats) return false;
+    if (!newStats || !oldStats) return true;
+    if (newStats.length !== oldStats.length) return true;
+
+    return newStats.some((newStat, index) => {
+      const oldStat = oldStats[index];
+      return newStat.name !== oldStat.name || newStat.value !== oldStat.value;
+    });
+  }
+
   async createOrUpdate(createPlaceDto: CreatePlaceDto, userId: string): Promise<Place> {
     const { id, deliveryId } = createPlaceDto;
 
@@ -46,6 +61,11 @@ export class PlaceService {
         throw new NotFoundException('Lugar no encontrado');
       }
 
+      // Check if statistics have changed
+      if (this.areStatisticsDifferent(createPlaceDto?.statistics, placeFound?.statistics)) {
+        await this.deliveryService.recalculateStatistics(deliveryId);
+      }
+
       return (
         await this.placeModel
           .findByIdAndUpdate(
@@ -55,6 +75,10 @@ export class PlaceService {
           )
           .exec()
       ).toObject();
+    }
+
+    if (createPlaceDto?.statistics) {
+      await this.deliveryService.recalculateStatistics(deliveryId);
     }
 
     return (await this.placeModel.create({ ...createPlaceDto, updatedBy: userId })).toObject();

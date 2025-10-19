@@ -18,6 +18,12 @@ export class Delivery extends Document {
   @Prop({ required: true })
   description: string;
 
+  @Prop({
+    required: false,
+    type: [StatisticDto],
+  })
+  goals: StatisticDto[];
+
   @Prop({ required: false, type: MediaDto })
   mainMedia: MediaDto;
 
