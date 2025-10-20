@@ -9,7 +9,7 @@ import { User } from '@/user/user.schema';
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })
 export class Delivery extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   year: number;
 
   @Prop({ type: Date, default: null })

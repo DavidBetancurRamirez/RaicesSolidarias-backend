@@ -11,6 +11,7 @@ import { Delivery } from './delivery.schema';
 
 import { PlaceService } from '@/place/place.service';
 import { UploadService } from '@/upload/upload.service';
+import { StatisticDto } from '@/common/dto/statistic.dto';
 
 @Injectable()
 export class DeliveryService {
@@ -89,12 +90,46 @@ export class DeliveryService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    const places = await this.placeService.findByDeliveryId(deliveryFound._id.toString());
+    const places = await this.placeService.findByDeliveryId(deliveryFound?._id.toString());
 
     return {
       ...deliveryFound.toObject(),
       places,
     };
+  }
+
+  async recalculateStatistics(deliveryId: string): Promise<void> {
+    const places = await this.placeService.findByDeliveryId(deliveryId, ['statistics']);
+    if (!places?.length) {
+      return;
+    }
+
+    // Combine statistics from all places
+    const combinedStats: Record<string, { value: number; goal: number; unit?: string }> = {};
+
+    for (const place of places) {
+      for (const stat of place.statistics ?? []) {
+        if (!combinedStats[stat.name]) {
+          combinedStats[stat.name] = { value: 0, goal: 0, unit: stat.unit };
+        }
+        combinedStats[stat.name].value += stat.value;
+        combinedStats[stat.name].goal += stat.goal ?? 0;
+      }
+    }
+
+    // Convert combined statistics back to arrays
+    const statsArray: StatisticDto[] = Object.entries(combinedStats).map(([name, stats]) => ({
+      name,
+      value: stats.value,
+      goal: stats.goal > 0 ? stats.goal : undefined,
+      unit: stats.unit,
+    }));
+
+    await this.deliveryModel.findByIdAndUpdate(deliveryId, {
+      $set: {
+        statistics: statsArray,
+      },
+    });
   }
 
   async softDelete(id: string): Promise<DeleteResponseDto> {

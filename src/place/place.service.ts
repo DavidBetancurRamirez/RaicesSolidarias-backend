@@ -11,8 +11,9 @@ import {
 
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
-import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 import { PlaceTestimonialsDto } from './dto/place-testimonials.dto';
+import { StatisticDto } from '@/common/dto/statistic.dto';
+import { UploadPlaceImagesDto } from './dto/place-upload.dto';
 
 import { UploadedFileResponse } from '@/upload/interfaces/storage.interface';
 
@@ -32,6 +33,25 @@ export class PlaceService {
     private readonly uploadService: UploadService,
   ) {}
 
+  private areStatisticsDifferent(
+    newStats: StatisticDto[] | undefined,
+    oldStats: StatisticDto[] | undefined,
+  ): boolean {
+    if (!newStats && !oldStats) return false;
+    if (!newStats || !oldStats) return true;
+    if (newStats.length !== oldStats.length) return true;
+
+    return newStats.some((newStat, index) => {
+      const oldStat = oldStats[index];
+      return (
+        newStat.name !== oldStat.name ||
+        newStat.value !== oldStat.value ||
+        newStat.goal !== oldStat.goal ||
+        newStat.unit !== oldStat.unit
+      );
+    });
+  }
+
   async createOrUpdate(createPlaceDto: CreatePlaceDto, userId: string): Promise<Place> {
     const { id, deliveryId } = createPlaceDto;
 
@@ -46,6 +66,11 @@ export class PlaceService {
         throw new NotFoundException('Lugar no encontrado');
       }
 
+      // Check if statistics have changed
+      if (this.areStatisticsDifferent(createPlaceDto?.statistics, placeFound?.statistics)) {
+        await this.deliveryService.recalculateStatistics(deliveryId);
+      }
+
       return (
         await this.placeModel
           .findByIdAndUpdate(
@@ -57,7 +82,13 @@ export class PlaceService {
       ).toObject();
     }
 
-    return (await this.placeModel.create({ ...createPlaceDto, updatedBy: userId })).toObject();
+    const place = await this.placeModel.create({ ...createPlaceDto, updatedBy: userId });
+
+    if (createPlaceDto?.statistics) {
+      await this.deliveryService.recalculateStatistics(deliveryId);
+    }
+
+    return place.toObject();
   }
 
   async findAll(): Promise<Place[]> {
@@ -87,14 +118,14 @@ export class PlaceService {
     };
   }
 
-  async findByDeliveryId(deliveryId: string): Promise<Place[] | null> {
+  async findByDeliveryId(deliveryId: string, select?: string[]): Promise<Place[] | null> {
     if (!isValidObjectId(deliveryId)) {
       throw new BadRequestException('El id no es válido');
     }
 
     const places = await this.placeModel
       .find({ deliveryId, deletedAt: null })
-      .select(['name', 'mainMedia', 'deliveryDate', 'description'])
+      .select(select || ['name', 'mainMedia', 'deliveryDate', 'description'])
       .exec();
 
     return places ? places.map((place) => place.toObject()) : null;
