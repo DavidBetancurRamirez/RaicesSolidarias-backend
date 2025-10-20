@@ -1,16 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsMongoId, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 import { MediaDto } from '@/common/dto/media.dto';
-import { StatisticDto } from '@/common/dto/statistic.dto';
 import { ThankYouDto } from './tank-you.dto';
 
 export class CreateDeliveryDto {
@@ -24,17 +16,6 @@ export class CreateDeliveryDto {
   })
   @IsString()
   description: string;
-
-  @ApiProperty({
-    description: 'Metas del lugar',
-    type: [StatisticDto],
-    required: false,
-  })
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StatisticDto)
-  goals: StatisticDto[];
 
   @ApiProperty({
     description: 'ID of the delivery to update. If not provided, a new delivery will be created.',

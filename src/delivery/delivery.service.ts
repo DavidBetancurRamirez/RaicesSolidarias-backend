@@ -99,24 +99,30 @@ export class DeliveryService {
   }
 
   async recalculateStatistics(deliveryId: string): Promise<void> {
-    const places = await this.placeService.findByDeliveryId(deliveryId);
+    const places = await this.placeService.findByDeliveryId(deliveryId, ['statistics']);
     if (!places?.length) {
       return;
     }
 
     // Combine statistics from all places
-    const combinedStats: Record<string, number> = {};
+    const combinedStats: Record<string, { value: number; goal: number; unit?: string }> = {};
 
     for (const place of places) {
       for (const stat of place.statistics ?? []) {
-        combinedStats[stat.name] = (combinedStats[stat.name] ?? 0) + stat.value;
+        if (!combinedStats[stat.name]) {
+          combinedStats[stat.name] = { value: 0, goal: 0, unit: stat.unit };
+        }
+        combinedStats[stat.name].value += stat.value;
+        combinedStats[stat.name].goal += stat.goal ?? 0;
       }
     }
 
     // Convert combined statistics back to arrays
-    const statsArray: StatisticDto[] = Object.entries(combinedStats).map(([name, value]) => ({
+    const statsArray: StatisticDto[] = Object.entries(combinedStats).map(([name, stats]) => ({
       name,
-      value,
+      value: stats.value,
+      goal: stats.goal > 0 ? stats.goal : undefined,
+      unit: stats.unit,
     }));
 
     await this.deliveryModel.findByIdAndUpdate(deliveryId, {

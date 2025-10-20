@@ -9,7 +9,7 @@ import { User } from '@/user/user.schema';
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'lastModifiedAt' } })
 export class Delivery extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   year: number;
 
   @Prop({ type: Date, default: null })
@@ -17,12 +17,6 @@ export class Delivery extends Document {
 
   @Prop({ required: true })
   description: string;
-
-  @Prop({
-    required: false,
-    type: [StatisticDto],
-  })
-  goals: StatisticDto[];
 
   @Prop({ required: false, type: MediaDto })
   mainMedia: MediaDto;

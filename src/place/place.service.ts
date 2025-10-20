@@ -43,7 +43,12 @@ export class PlaceService {
 
     return newStats.some((newStat, index) => {
       const oldStat = oldStats[index];
-      return newStat.name !== oldStat.name || newStat.value !== oldStat.value;
+      return (
+        newStat.name !== oldStat.name ||
+        newStat.value !== oldStat.value ||
+        newStat.goal !== oldStat.goal ||
+        newStat.unit !== oldStat.unit
+      );
     });
   }
 
@@ -77,11 +82,13 @@ export class PlaceService {
       ).toObject();
     }
 
+    const place = await this.placeModel.create({ ...createPlaceDto, updatedBy: userId });
+
     if (createPlaceDto?.statistics) {
       await this.deliveryService.recalculateStatistics(deliveryId);
     }
 
-    return (await this.placeModel.create({ ...createPlaceDto, updatedBy: userId })).toObject();
+    return place.toObject();
   }
 
   async findAll(): Promise<Place[]> {
@@ -111,14 +118,14 @@ export class PlaceService {
     };
   }
 
-  async findByDeliveryId(deliveryId: string): Promise<Place[] | null> {
+  async findByDeliveryId(deliveryId: string, select?: string[]): Promise<Place[] | null> {
     if (!isValidObjectId(deliveryId)) {
       throw new BadRequestException('El id no es válido');
     }
 
     const places = await this.placeModel
       .find({ deliveryId, deletedAt: null })
-      .select(['name', 'mainMedia', 'deliveryDate', 'description'])
+      .select(select || ['name', 'mainMedia', 'deliveryDate', 'description'])
       .exec();
 
     return places ? places.map((place) => place.toObject()) : null;

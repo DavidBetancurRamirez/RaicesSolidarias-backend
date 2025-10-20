@@ -28,12 +28,6 @@ export class Place extends Document {
   @Prop({ type: [MediaDto], required: false })
   galleryMedia: MediaDto[];
 
-  @Prop({
-    required: false,
-    type: [StatisticDto],
-  })
-  goals: StatisticDto[];
-
   @Prop({ required: false, type: MediaDto })
   mainMedia: MediaDto;
 
