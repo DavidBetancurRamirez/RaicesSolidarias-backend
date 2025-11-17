@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { STORAGE_ADAPTER } from './adapters/constants.adapters';
 
 import { StorageAdapter, UploadedFileResponse } from './interfaces/storage.interface';
+import { TypeOfMedia } from '@/common/dto/media.dto';
 
 @Injectable()
 export class UploadService {
@@ -28,10 +29,39 @@ export class UploadService {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
-    return this.storageAdapter.uploadFile(file);
+    const storageResponse = await this.storageAdapter.uploadFile(file);
+
+    // Determine the type of the file based on its MIME type
+    let type: TypeOfMedia = 'other';
+    if (storageResponse.mimetype.startsWith('image/')) {
+      type = 'image';
+    } else if (storageResponse.mimetype.startsWith('video/')) {
+      type = 'video';
+    }
+
+    return {
+      url: storageResponse.url,
+      filename: storageResponse.filename,
+      type,
+    };
   }
 
   async uploadFiles(files: Express.Multer.File[]): Promise<UploadedFileResponse[]> {
-    return this.storageAdapter.uploadFiles(files);
+    const storageResponses = await this.storageAdapter.uploadFiles(files);
+
+    return storageResponses.map((storageResponse) => {
+      let type: TypeOfMedia = 'other';
+      if (storageResponse.mimetype.startsWith('image/')) {
+        type = 'image';
+      } else if (storageResponse.mimetype.startsWith('video/')) {
+        type = 'video';
+      }
+
+      return {
+        url: storageResponse.url,
+        filename: storageResponse.filename,
+        type,
+      };
+    });
   }
 }

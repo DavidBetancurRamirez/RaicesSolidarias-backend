@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 
-import { StorageAdapter, UploadedFileResponse } from '../interfaces/storage.interface';
+import { StorageAdapter, StorageUploadResponse } from '../interfaces/storage.interface';
 
 @Injectable()
 export class AzureStorageAdapter implements StorageAdapter {
@@ -35,7 +35,7 @@ export class AzureStorageAdapter implements StorageAdapter {
     return blobClient.url;
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<UploadedFileResponse> {
+  async uploadFile(file: Express.Multer.File): Promise<StorageUploadResponse> {
     const filename = file.originalname;
 
     const blockBlobClient = this.containerClient.getBlockBlobClient(filename);
@@ -43,22 +43,14 @@ export class AzureStorageAdapter implements StorageAdapter {
       blobHTTPHeaders: { blobContentType: file.mimetype },
     });
 
-    // Determine the type of the file based on its MIME type
-    let type: 'image' | 'video' | 'other' = 'other';
-    if (file.mimetype.startsWith('image/')) {
-      type = 'image';
-    } else if (file.mimetype.startsWith('video/')) {
-      type = 'video';
-    }
-
     return {
       url: blockBlobClient.url,
       filename,
-      type,
+      mimetype: file.mimetype,
     };
   }
 
-  async uploadFiles(files: Express.Multer.File[]): Promise<UploadedFileResponse[]> {
+  async uploadFiles(files: Express.Multer.File[]): Promise<StorageUploadResponse[]> {
     return Promise.all(files.map((file) => this.uploadFile(file)));
   }
 }
